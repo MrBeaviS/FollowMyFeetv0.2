@@ -22,6 +22,7 @@
 		E7166C661CE2252300D36276 /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7166C621CE2252300D36276 /* Location.swift */; };
 		E7166C681CE2253600D36276 /* dataAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7166C671CE2253600D36276 /* dataAccess.swift */; };
 		E7166C6A1CE2CEA900D36276 /* LocationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7166C691CE2CEA900D36276 /* LocationViewController.swift */; };
+		E7E298071CE6C3FB00F82392 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E7E298061CE6C3FB00F82392 /* MapKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +65,7 @@
 		E7166C671CE2253600D36276 /* dataAccess.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = dataAccess.swift; sourceTree = "<group>"; };
 		E7166C691CE2CEA900D36276 /* LocationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationViewController.swift; sourceTree = "<group>"; };
 		E7166C6B1CE2D19000D36276 /* FollowMyFeet 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "FollowMyFeet 2.xcdatamodel"; sourceTree = "<group>"; };
+		E7E298061CE6C3FB00F82392 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +73,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E7E298071CE6C3FB00F82392 /* MapKit.framework in Frameworks */,
 				31A9C21B1CDDE6DC0099E4AE /* CoreLocation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -95,6 +98,7 @@
 		31A9C1DD1CDDDEC80099E4AE = {
 			isa = PBXGroup;
 			children = (
+				E7E298061CE6C3FB00F82392 /* MapKit.framework */,
 				31A9C21A1CDDE6DC0099E4AE /* CoreLocation.framework */,
 				31A9C1E81CDDDEC80099E4AE /* FollowMyFeet */,
 				31A9C2001CDDDEC80099E4AE /* FollowMyFeetTests */,
@@ -220,6 +224,11 @@
 					31A9C1E51CDDDEC80099E4AE = {
 						CreatedOnToolsVersion = 7.3;
 						DevelopmentTeam = 5A48L7RV8D;
+						SystemCapabilities = {
+							com.apple.Maps.iOS = {
+								enabled = 1;
+							};
+						};
 					};
 					31A9C1FC1CDDDEC80099E4AE = {
 						CreatedOnToolsVersion = 7.3;

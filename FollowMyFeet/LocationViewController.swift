@@ -9,11 +9,11 @@
 import Foundation
 import UIKit
 import CoreData
-
+import MapKit
 class LocationViewController: UITableViewController {
     var data: dataAccess = dataAccess.sharedInstance
     var locs: [Location]?
-    
+    var destionationLocation: CLLocation?
     override func viewDidLoad() {
         super.viewDidLoad()
         print("test")
@@ -24,12 +24,16 @@ class LocationViewController: UITableViewController {
         let destinationVC = segue.destinationViewController as! UINavigationController
         let viewController = destinationVC.viewControllers[0] as! ViewController
         if (segue.identifier == "Cell") {
-            print("Im Here")
             let selectedRow = self.tableView.indexPathForCell(sender as! UITableViewCell)
-            viewController.longitude = locs![selectedRow!.item].longitude
-            viewController.latitude = locs![selectedRow!.item].latitude
+            destionationLocation = CLLocation(latitude: Double(locs![selectedRow!.item].latitude!), longitude: Double(locs![selectedRow!.item].longitude!))
+            viewController.destionationLocation = destionationLocation
+            viewController.providedLocation = true
+           
         }
-        
+    
+    }
+    @IBAction func unwindToLocationController(segue: UIStoryboardSegue){
+    
     }
     
     
