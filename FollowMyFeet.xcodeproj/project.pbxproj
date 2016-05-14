@@ -219,7 +219,7 @@
 				TargetAttributes = {
 					31A9C1E51CDDDEC80099E4AE = {
 						CreatedOnToolsVersion = 7.3;
-						DevelopmentTeam = 9LR7PH2G8A;
+						DevelopmentTeam = 5A48L7RV8D;
 					};
 					31A9C1FC1CDDDEC80099E4AE = {
 						CreatedOnToolsVersion = 7.3;
@@ -437,10 +437,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = FollowMyFeet/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = au.edu.uow.csci342.FollowMyFeet;
+				PRODUCT_BUNDLE_IDENTIFIER = au.edu.uow.csci342.FollowMyFeet0.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -448,10 +451,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = FollowMyFeet/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = au.edu.uow.csci342.FollowMyFeet;
+				PRODUCT_BUNDLE_IDENTIFIER = au.edu.uow.csci342.FollowMyFeet0.2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};

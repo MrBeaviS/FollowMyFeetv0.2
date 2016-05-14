@@ -26,7 +26,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     var locs: [Location]?
     var latitude: NSNumber?
     var longitude: NSNumber?
-    
+    var userLocation : CLLocation?
     let regionRadius: CLLocationDistance = 1000
     func centerMapOnLocation(location: CLLocation) {
         let coordinateRegion = MKCoordinateRegionMakeWithDistance(location.coordinate,
@@ -43,7 +43,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         locs = data.getAllLocations()
         for i in locs!{
             placePins(i)
-            //data.testDelete(i)
         }
         //Will access the users location and update when there is a change (Will only work if the user agrees to use location settings
         locationManager.delegate = self
@@ -54,35 +53,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         centerMapOnLocation(initialLocation)
         }
 
-        
-//        //Create Long/Lat variables of type CLLocationDegrees
-//        let latitude : CLLocationDegrees = -34.405404
-//        let longitude : CLLocationDegrees = 150.878409
-//        
-//        //Delta is difference of latitutudes/longtitudes from one side of screen to another
-//        let latDelta : CLLocationDegrees = 0.01 //0.01 is zoomed in, 0.1 is fairly zoomed out
-//        let longDelta : CLLocationDegrees = 0.01
-//        
-//        //combination of 2 deltas, 2 changes between degrees
-//        let span : MKCoordinateSpan = MKCoordinateSpanMake(latDelta, longDelta)
-//        
-//        let location : CLLocationCoordinate2D = CLLocationCoordinate2DMake(latitude, longitude)
-//        
-//        let region : MKCoordinateRegion = MKCoordinateRegionMake(location, span)
-//        
-//        map.setRegion(region, animated: true)
-        
-//        
-//        //create anotation AKA "Pin"
-//        let annotation = MKPointAnnotation()
-//        
-//        //set location, title and subtitle of annotation
-//        annotation.coordinate = location
-//        annotation.title = "UOW"
-//        annotation.subtitle = "AKA Hell!!!"
-//        
-//        //add to map
-//        map.addAnnotation(annotation)
         
         //allow user to long press on map
         let uilpgr = UILongPressGestureRecognizer(target: self, action: #selector(ViewController.action(_:)))
@@ -138,12 +108,69 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             annotation.subtitle = annotationInfo
             self.map.addAnnotation(annotation)
             self.data.createLocation(newCoordinate, latDelta: 0.01, longDelta: 0.01, name: annotationName!, info: annotationInfo!)
+            self.drawPath()
         }
 
         addLocationAlert.addAction(cancelButton)
         addLocationAlert.addAction(createButton)
         presentViewController(addLocationAlert, animated:true, completion: nil)
 
+    }
+    
+    func drawPath() {
+        let sourceLocation = CLLocationCoordinate2D(latitude: userLocation!.coordinate.latitude, longitude: userLocation!.coordinate.longitude)
+        let destinationLocation = CLLocationCoordinate2D(latitude: Double(latitude!), longitude: Double(longitude!))
+        let sourcePlacemark = MKPlacemark(coordinate: sourceLocation, addressDictionary: nil)
+        let destinationPlacemark = MKPlacemark(coordinate: destinationLocation, addressDictionary: nil)
+        
+        // 4.
+        let sourceMapItem = MKMapItem(placemark: sourcePlacemark)
+        let destinationMapItem = MKMapItem(placemark: destinationPlacemark)
+        let sourceAnnotation = MKPointAnnotation()
+        sourceAnnotation.title = "Times Square"
+        
+        if let location = sourcePlacemark.location {
+            sourceAnnotation.coordinate = location.coordinate
+        }
+        
+        
+        let destinationAnnotation = MKPointAnnotation()
+        destinationAnnotation.title = "Empire State Building"
+        
+        if let location = destinationPlacemark.location {
+            destinationAnnotation.coordinate = location.coordinate
+        }
+        
+        // 6.
+        self.map.showAnnotations([sourceAnnotation,destinationAnnotation], animated: true )
+        
+        // 7.
+        let directionRequest = MKDirectionsRequest()
+        directionRequest.source = sourceMapItem
+        directionRequest.destination = destinationMapItem
+        directionRequest.transportType = .Automobile
+        
+        // Calculate the direction
+        let directions = MKDirections(request: directionRequest)
+        
+        // 8.
+        directions.calculateDirectionsWithCompletionHandler {
+            (response, error) -> Void in
+            
+            guard let response = response else {
+                if let error = error {
+                    print("Error: \(error)")
+                }
+                
+                return
+            }
+            
+            let route = response.routes[0]
+            self.map.addOverlay((route.polyline), level: MKOverlayLevel.AboveRoads)
+            
+            let rect = route.polyline.boundingMapRect
+            self.map.setRegion(MKCoordinateRegionForMapRect(rect), animated: true)
+        }
     }
     
     func placePins(loc: Location){
@@ -160,13 +187,13 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
-        //print(locations)
+        print(locations)
         
-        let userLocation : CLLocation = locations[0]
+        userLocation = locations[0]
         
         //extracts the user lat/long
-        let latitude = userLocation.coordinate.latitude
-        let longitude = userLocation.coordinate.longitude
+        let latitude = userLocation!.coordinate.latitude
+        let longitude = userLocation!.coordinate.longitude
         
         let latDelta : CLLocationDegrees = 0.01 //0.01 is zoomed in, 0.1 is fairly zoomed out
         let longDelta : CLLocationDegrees = 0.01
