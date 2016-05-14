@@ -121,7 +121,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: (currentUserLocation?.coordinate.latitude)!, longitude: (currentUserLocation?.coordinate.longitude)!), addressDictionary: nil))
         request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: (destionationLocation?.coordinate.latitude)!, longitude: (destionationLocation?.coordinate.longitude)!), addressDictionary: nil))
         request.requestsAlternateRoutes = true
-        request.transportType = .Walking
+        request.transportType = .Any
         let directions = MKDirections(request: request)
         
         directions.calculateDirectionsWithCompletionHandler {
@@ -139,6 +139,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     func mapView(mapView: MKMapView, rendererForOverlay overlay: MKOverlay) -> MKOverlayRenderer {
         let renderer = MKPolylineRenderer(polyline: overlay as! MKPolyline)
         renderer.strokeColor = UIColor.blueColor()
+        renderer.lineWidth = 2.0
         return renderer
     }
     
