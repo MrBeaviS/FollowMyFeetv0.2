@@ -11,9 +11,13 @@ import UIKit
 import CoreData
 import MapKit
 class LocationViewController: UITableViewController {
+    @IBAction func viewLocationOrPath(sender: AnyObject) {
+    }
+    @IBOutlet weak var viewMap: UIButton!
     var data: dataAccess = dataAccess.sharedInstance
     var locs: [Location]?
     var destionationLocation: CLLocation?
+    var pathBool: Bool = false
     override func viewDidLoad() {
         super.viewDidLoad()
         print("test")
@@ -23,11 +27,22 @@ class LocationViewController: UITableViewController {
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
         let destinationVC = segue.destinationViewController as! UINavigationController
         let viewController = destinationVC.viewControllers[0] as! ViewController
-        if (segue.identifier == "Cell") {
-            let selectedRow = self.tableView.indexPathForCell(sender as! UITableViewCell)
-            destionationLocation = CLLocation(latitude: Double(locs![selectedRow!.item].latitude!), longitude: Double(locs![selectedRow!.item].longitude!))
-            viewController.destionationLocation = destionationLocation
-            viewController.providedLocation = true
+        if (segue.identifier == "PathOrLocation") {
+            var L: [Location] = []
+            let rows = self.tableView.indexPathsForSelectedRows?.map{$0.row}
+            for index in 0..<rows!.count{
+                L.append(locs![rows![index]])
+                viewController.locs.removeAll()
+                viewController.locs = L
+            }
+                if pathBool {
+                    viewController.providedPath = true
+                    viewController.providedLocation = false
+                }else {
+                    viewController.providedLocation = true
+                    viewController.providedPath = false
+                }
+            
            
         }
     
@@ -36,6 +51,29 @@ class LocationViewController: UITableViewController {
     
     }
     
+    
+    
+    //tableView.allowsMultipleSelection = true
+    
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        checkCount()
+    }
+    
+    override func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
+        checkCount()
+    }
+    
+    func checkCount(){
+        if let list = tableView.indexPathsForSelectedRows {
+            if list.count > 1 {
+                viewMap.setTitle("View Path", forState: .Normal)
+                pathBool = true
+            }else if list.count < 2 {
+                viewMap.setTitle("View Location", forState: .Normal)
+                pathBool = false
+            }
+        }
+    }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return locs!.count;
@@ -56,6 +94,7 @@ class LocationViewController: UITableViewController {
             return cell;
     }
     
+    //need to write and implement delete
     /*override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         
         if editingStyle == .Delete {

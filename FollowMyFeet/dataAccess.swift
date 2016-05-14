@@ -28,6 +28,16 @@ class dataAccess {
         self.saveData()
     }
     
+    func createPath(name: String, info: String, loc: [Location]){
+        let storedLocation: Path = NSEntityDescription.insertNewObjectForEntityForName("Path", inManagedObjectContext: managedObjectContext) as! Path
+        let locationArray = storedLocation.valueForKeyPath("location") as! NSMutableSet
+        for i in loc {
+            locationArray.addObject(i)
+        }
+        storedLocation.name = name
+        storedLocation.info = info
+    }
+    
     func getAllLocations() -> [Location] {
         let fetchRequest = NSFetchRequest(entityName: "Location")
         do {

@@ -51,7 +51,7 @@
         <scene sceneID="2lo-IX-36y">
             <objects>
                 <tableViewController id="rMb-G1-WGM" customClass="LocationViewController" customModule="FollowMyFeet" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="fk2-kL-LMF">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" allowsMultipleSelection="YES" showsSelectionImmediatelyOnTouchBegin="NO" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="fk2-kL-LMF">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -93,9 +93,6 @@
                                         <constraint firstItem="vvk-bB-zfy" firstAttribute="leading" secondItem="FoI-V3-Qw5" secondAttribute="leading" constant="8" id="srC-9F-TL2"/>
                                     </constraints>
                                 </tableViewCellContentView>
-                                <connections>
-                                    <segue destination="lrK-3B-g7p" kind="show" identifier="Cell" id="evS-VS-U45"/>
-                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>
@@ -104,12 +101,26 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Locations" id="wtF-7L-wDo">
+                        <barButtonItem key="leftBarButtonItem" style="plain" id="Wzg-fS-uHT">
+                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="k5d-qV-zAl">
+                                <rect key="frame" x="20" y="7" width="133" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="View Location"/>
+                                <connections>
+                                    <action selector="viewLocationOrPath:" destination="rMb-G1-WGM" eventType="touchUpInside" id="eQK-h7-p9i"/>
+                                    <segue destination="lrK-3B-g7p" kind="show" identifier="PathOrLocation" id="8hF-5M-1na"/>
+                                </connections>
+                            </button>
+                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" title="Map" id="M3O-Es-MYN">
                             <connections>
-                                <segue destination="lrK-3B-g7p" kind="show" identifier="button" id="Mhg-fb-hRh"/>
+                                <segue destination="lrK-3B-g7p" kind="show" id="foI-qS-361"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
+                    <connections>
+                        <outlet property="viewMap" destination="k5d-qV-zAl" id="GSm-vb-od6"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4aX-Zp-Gya" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -153,6 +164,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="evS-VS-U45"/>
+        <segue reference="foI-qS-361"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -18,13 +18,27 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     let locationManager = CLLocationManager()
     var currentUserLocation: CLLocation?
     var destionationLocation: CLLocation?
+    var data: dataAccess = dataAccess.sharedInstance
+    var locs: [Location] = []
     var providedLocation: Bool = false
+    var providedPath: Bool = false
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("test " + String(providedLocation))
         // Do any additional setup after loading the view, typically from a nib.
-        
+        let overlays = map.overlays
+        map.removeOverlays(overlays)
+        let annotationsToRemove = map.annotations.filter { $0 !== map.userLocation }
+        map.removeAnnotations( annotationsToRemove )
         self.map.showsUserLocation = true
-        
+        print("map " + String(locs.capacity))
+        if providedPath{
+            locs.append(locs[0])
+            for i in locs{
+                placePins(i)
+                //data.testDelete(i)
+            }
+        }
         
         //Will access the users location and update when there is a change (Will only work if the user agrees to use location settings
         self.map.delegate = self
@@ -78,61 +92,106 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     //action finction recieves var gestureRecogniser
     func action(gestureRecogniser : UIGestureRecognizer){
         print("gesture Recognised")
-        let allAnnotations = self.map.annotations
-        self.map.removeAnnotations(allAnnotations)
-        
-        var overlaysToRemove = [MKOverlay]()
-        
-        // All overlays on the map
-        let overlays = self.map.overlays
-        
-        for overlay in overlays
-        {
-            if overlay.title! == "route"
-            {
-                overlaysToRemove.append(overlay)
-            }
-        }
-        
-        self.map.removeOverlays(overlaysToRemove)
-        
-        //location of longpress relative to the map
         let touchPoint = gestureRecogniser.locationInView(self.map)
         
         let newCoordinate : CLLocationCoordinate2D = map.convertPoint(touchPoint, toCoordinateFromView: self.map)
         
-        let annotation = MKPointAnnotation()
-        
-        //set location, title and subtitle of annotation
-        annotation.coordinate = newCoordinate
-        annotation.title = "New Place"
-        annotation.subtitle = "Cool...."
-        destionationLocation = CLLocation(latitude: newCoordinate.latitude, longitude: newCoordinate.longitude)
-        getDirections()
-        //add to map
-        map.addAnnotation(annotation)
+        pinCreate(newCoordinate)
         
         
     }
     
-    func getDirections() {
+    func pinCreate(newCoordinate: CLLocationCoordinate2D){
+        var annotationName: String?
+        var annotationInfo: String?
+        let addLocationAlert = UIAlertController(title:  "Add a new Location",message: "Location Details", preferredStyle: UIAlertControllerStyle.Alert)
+        addLocationAlert.addTextFieldWithConfigurationHandler { (textField: UITextField!) -> Void in
+            textField.placeholder = "Enter Location Name"
+        }
+        addLocationAlert.addTextFieldWithConfigurationHandler { (textField: UITextField!) -> Void in
+            textField.placeholder = "Enter Location Info"
+        }
+        let cancelButton = UIAlertAction(title: "Cancel", style: .Default) { (alert: UIAlertAction!) -> Void in
+            addLocationAlert.dismissViewControllerAnimated(true, completion: nil)
+        }
+        let createLocationButton = UIAlertAction(title: "Create Location", style: .Default) { (alert: UIAlertAction!) -> Void in
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = newCoordinate
+            if let text = addLocationAlert.textFields![0].text where !text.isEmpty {
+                annotationName = text
+            }
+            if let text = addLocationAlert.textFields![1].text where !text.isEmpty {
+                annotationInfo = text
+            }
+            annotation.title = annotationName
+            annotation.subtitle = annotationInfo
+            self.map.addAnnotation(annotation)
+            self.data.createLocation(newCoordinate, latDelta: 0.01, longDelta: 0.01, name: annotationName!, info: annotationInfo!)
+        }
+        let createAndAddButton = UIAlertAction(title: "Create Location And Add To Path", style: .Default) { (alert: UIAlertAction!) -> Void in
+        }
+        addLocationAlert.addAction(cancelButton)
+        addLocationAlert.addAction(createLocationButton)
+        addLocationAlert.addAction(createAndAddButton)
+        presentViewController(addLocationAlert, animated:true, completion: nil)
+        
+    }
+    
+    func placePins(loc: Location){
+        let annotation = MKPointAnnotation()
+        let latitude: CLLocationDegrees = loc.latitude as! CLLocationDegrees
+        let longitude: CLLocationDegrees = loc.longitude as! CLLocationDegrees
+        //set location, title and subtitle of annotation
+        let location : CLLocationCoordinate2D = CLLocationCoordinate2DMake(latitude, longitude)
+        annotation.coordinate = location
+        annotation.title = loc.name
+        annotation.subtitle = loc.info
+        map.addAnnotation(annotation)
+    }
+    
+    func getPathDirections() {
         
         let request = MKDirectionsRequest()
+        for i in 0..<locs.count-1 {
+            request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[i].latitude!), longitude: Double(locs[i].longitude!)), addressDictionary: nil))
+            
+            request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[i+1].latitude!), longitude: Double(locs[i+1].longitude!)), addressDictionary: nil))
+            
+            
+            request.requestsAlternateRoutes = true
+            request.transportType = .Any
+            let directions = MKDirections(request: request)
+            
+            directions.calculateDirectionsWithCompletionHandler {
+                response, error in
+                guard let unwrappedResponse = response else { print(error); return }
+                
+                unwrappedResponse.routes[0].polyline.title = "route"
+                self.map.addOverlay(unwrappedResponse.routes[0].polyline)
+                self.map.setVisibleMapRect(unwrappedResponse.routes[0].polyline.boundingMapRect,edgePadding: UIEdgeInsets(top: 50.0, left: 50.0, bottom: 50.0, right: 50.0), animated: true)
+                
+            }
+        }
+    }
+    
+    func getDirections() {
+        let request = MKDirectionsRequest()
         request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: (currentUserLocation?.coordinate.latitude)!, longitude: (currentUserLocation?.coordinate.longitude)!), addressDictionary: nil))
-        request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: (destionationLocation?.coordinate.latitude)!, longitude: (destionationLocation?.coordinate.longitude)!), addressDictionary: nil))
+        
+        request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[0].latitude!), longitude: Double(locs[0].longitude!)), addressDictionary: nil))
+        
         request.requestsAlternateRoutes = true
-        request.transportType = .Any
+        request.transportType = .Walking
         let directions = MKDirections(request: request)
         
         directions.calculateDirectionsWithCompletionHandler {
             response, error in
             guard let unwrappedResponse = response else { print(error); return }
             
-            for route in unwrappedResponse.routes {
-                route.polyline.title = "route"
-                self.map.addOverlay(route.polyline)
-                self.map.setVisibleMapRect(route.polyline.boundingMapRect,edgePadding: UIEdgeInsets(top: 50.0, left: 50.0, bottom: 50.0, right: 50.0), animated: true)
-            }
+            unwrappedResponse.routes[0].polyline.title = "route"
+            self.map.addOverlay(unwrappedResponse.routes[0].polyline)
+            self.map.setVisibleMapRect(unwrappedResponse.routes[0].polyline.boundingMapRect,edgePadding: UIEdgeInsets(top: 50.0, left: 50.0, bottom: 50.0, right: 50.0), animated: true)
+            
         }
     }
     
@@ -142,6 +201,10 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         renderer.lineWidth = 2.0
         return renderer
     }
+    
+    
+    
+    
     
     func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
@@ -164,10 +227,13 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
         self.map.setRegion(region, animated: true)
         locationManager.stopUpdatingLocation()
-        if (providedLocation){
+        if providedLocation {
+            print("location")
             getDirections()
-        }else {
-            print("NOPE")
+        }
+        if providedPath {
+            print("path")
+            getPathDirections()
         }
         
     }
