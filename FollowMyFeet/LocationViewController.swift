@@ -13,14 +13,14 @@ import MapKit
 class LocationViewController: UITableViewController {
     @IBAction func viewLocationOrPath(sender: AnyObject) {
     }
+    @IBOutlet var locationTable: UITableView!
     @IBOutlet weak var viewMap: UIButton!
     var data: dataAccess = dataAccess.sharedInstance
-    var locs: [Location]?
+    var locs: [Location]!
     var destionationLocation: CLLocation?
     var pathBool: Bool = false
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("test")
         locs = data.getAllLocations()
     }
     
@@ -48,12 +48,9 @@ class LocationViewController: UITableViewController {
     
     }
     @IBAction func unwindToLocationController(segue: UIStoryboardSegue){
-    
+        locs = data.getAllLocations()
+        self.locationTable.reloadData()
     }
-    
-    
-    
-    //tableView.allowsMultipleSelection = true
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         checkCount()

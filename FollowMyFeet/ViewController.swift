@@ -24,7 +24,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     var providedPath: Bool = false
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("test " + String(providedLocation))
         // Do any additional setup after loading the view, typically from a nib.
         let overlays = map.overlays
         map.removeOverlays(overlays)
@@ -150,28 +149,93 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     }
     
     func getPathDirections() {
-        
-        let request = MKDirectionsRequest()
-        for i in 0..<locs.count-1 {
-            request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[i].latitude!), longitude: Double(locs[i].longitude!)), addressDictionary: nil))
-            
-            request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[i+1].latitude!), longitude: Double(locs[i+1].longitude!)), addressDictionary: nil))
-            
-            
-            request.requestsAlternateRoutes = true
-            request.transportType = .Any
-            let directions = MKDirections(request: request)
-            
-            directions.calculateDirectionsWithCompletionHandler {
-                response, error in
-                guard let unwrappedResponse = response else { print(error); return }
+        getShortestPath()
+        /*let request = MKDirectionsRequest()
+         for i in 0..<locs.count-1 {
+         request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[i].latitude!), longitude: Double(locs[i].longitude!)), addressDictionary: nil))
+         
+         request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[i+1].latitude!), longitude: Double(locs[i+1].longitude!)), addressDictionary: nil))
+         
+         
+         request.requestsAlternateRoutes = true
+         request.transportType = .Walking
+         let directions = MKDirections(request: request)
+         
+         directions.calculateDirectionsWithCompletionHandler {
+         response, error in
+         guard let unwrappedResponse = response else { print(error); return }
+         
+         unwrappedResponse.routes[0].polyline.title = "route"
+         self.map.addOverlay(unwrappedResponse.routes[0].polyline)
+         self.map.setVisibleMapRect(unwrappedResponse.routes[0].polyline.boundingMapRect,edgePadding: UIEdgeInsets(top: 50.0, left: 50.0, bottom: 50.0, right: 50.0), animated: true)
+         
+         }
+         }*/
+    }
+    
+    func getShortestPath() {
+        var paths = Array<Array<MKRoute>>()
+        var rows = locs.count-1
+        var columns = rows
+        for _ in 0..<columns {
+            paths.append(Array(count:rows,repeatedValue: MKRoute()))
+        }
+        for i in 0..<locs.count-1{
+            for x in  0..<locs.count-1{
+                let request = MKDirectionsRequest()
+                request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[i].latitude!), longitude: Double(locs[i].longitude!)), addressDictionary: nil))
                 
-                unwrappedResponse.routes[0].polyline.title = "route"
-                self.map.addOverlay(unwrappedResponse.routes[0].polyline)
-                self.map.setVisibleMapRect(unwrappedResponse.routes[0].polyline.boundingMapRect,edgePadding: UIEdgeInsets(top: 50.0, left: 50.0, bottom: 50.0, right: 50.0), animated: true)
+                request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[x].latitude!), longitude: Double(locs[x].longitude!)), addressDictionary: nil))
+                request.requestsAlternateRoutes = true
+                request.transportType = .Walking
+                let directions = MKDirections(request: request)
                 
+                directions.calculateDirectionsWithCompletionHandler {
+                    response, error in
+                    guard let unwrappedResponse = response else { print(error); return }
+                    paths[i][x] = unwrappedResponse.routes[0]
+                    if i == rows-1 && x == rows-1 {
+                        var shortestPathArray = Array<MKRoute>()
+                        shortestPathArray = self.determineOptimalPath(paths)
+                        print(shortestPathArray.count)
+                        for path in shortestPathArray{
+                            self.map.addOverlay(path.polyline)
+                            self.map.setVisibleMapRect(path.polyline.boundingMapRect,edgePadding: UIEdgeInsets(top: 50.0, left: 50.0, bottom: 50.0, right: 50.0), animated: true)
+                        }
+                    }
+                }
             }
         }
+    }
+    
+    func determineOptimalPath(distances:Array<Array<MKRoute>>) -> Array<MKRoute>{
+        var shortestPathArray = Array<MKRoute>()
+        var tempRoute = MKRoute()
+        var visted: [Bool] = []
+        for i in 0..<locs.count-1{
+            visted.append(false)
+        }
+        var temp:Int = 0
+        var shortestPath: Double = 999999999
+        var previousNode: Int = 0
+        while shortestPathArray.count != locs.count-1{
+            for x in  0..<locs.count-1{
+                if distances[previousNode][x].distance < shortestPath && distances[previousNode][x].distance != 0 {
+                    if !visted[x] && previousNode != x{
+                        print(String(previousNode) + " : " + String(x))
+                    shortestPath = distances[previousNode][x].distance
+                        tempRoute = distances[previousNode][x]
+                    temp = x
+                    }
+                }
+            }
+            visted[previousNode] = true
+            previousNode = temp
+            shortestPathArray.append(tempRoute)
+            shortestPath = 999999999
+        }
+        shortestPathArray.append(distances[previousNode][0])
+        return shortestPathArray
     }
     
     func getDirections() {
@@ -197,9 +261,15 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     func mapView(mapView: MKMapView, rendererForOverlay overlay: MKOverlay) -> MKOverlayRenderer {
         let renderer = MKPolylineRenderer(polyline: overlay as! MKPolyline)
-        renderer.strokeColor = UIColor.blueColor()
+        renderer.strokeColor = getRandomColor()
         renderer.lineWidth = 2.0
         return renderer
+    }
+    func getRandomColor() -> UIColor {
+        let randomRed:CGFloat = CGFloat(arc4random()) / CGFloat(UInt32.max)
+        let randomGreen:CGFloat = CGFloat(arc4random()) / CGFloat(UInt32.max)
+        let randomBlue:CGFloat = CGFloat(arc4random()) / CGFloat(UInt32.max)
+        return UIColor(red: randomRed, green: randomGreen, blue: randomBlue, alpha: 1.0)
     }
     
     
@@ -228,12 +298,11 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         self.map.setRegion(region, animated: true)
         locationManager.stopUpdatingLocation()
         if providedLocation {
-            print("location")
             getDirections()
         }
         if providedPath {
-            print("path")
             getPathDirections()
+            providedPath=false
         }
         
     }
