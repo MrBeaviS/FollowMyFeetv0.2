@@ -247,9 +247,9 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
         self.map.setRegion(region, animated: true)
         locationManager.stopUpdatingLocation()
-        if providedLocation {
+        
             getDirections()
-        }
+    
         if providedPath {
             getPathDirections()
             providedPath=false

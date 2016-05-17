@@ -56,16 +56,20 @@ class LocationViewController: UITableViewController {
         checkCount()
     }
     
-    override func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
+    override func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath){
+        
+        viewMap.enabled = false
         checkCount()
     }
     
     func checkCount(){
         if let list = tableView.indexPathsForSelectedRows {
             if list.count > 1 {
+                viewMap.enabled = true
                 viewMap.setTitle("View Path", forState: .Normal)
                 pathBool = true
-            }else if list.count < 2 {
+            }else if list.count == 1 {
+                viewMap.enabled = true
                 viewMap.setTitle("View Location", forState: .Normal)
                 pathBool = false
             }
