@@ -39,6 +39,17 @@ class dataAccess {
         storedLocation.info = info
     }
     
+    func getAllPaths() -> [Path] {
+        let fetchRequest = NSFetchRequest(entityName: "Path")
+        do {
+            let fetchedLocation: [Path] = try self.managedObjectContext.executeFetchRequest(fetchRequest) as! [Path]
+            return fetchedLocation
+        }catch {
+            print("Couldn't get any Paths!")
+            return[]
+        }
+    }
+    
     func getAllLocations() -> [Location] {
         let fetchRequest = NSFetchRequest(entityName: "Location")
         do {

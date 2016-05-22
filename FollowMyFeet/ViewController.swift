@@ -28,13 +28,13 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         super.viewDidLoad()
         self.map.showsUserLocation = true
         clearMap()
-        loadAnnotations()
+        /*loadAnnotations()
         if providedPath{
             locs.append(locs[0])
             for i in locs{
                 placePins(i)
             }
-        }
+        }*/
         
         //Will access the users location and update when there is a change (Will only work if the user agrees to use location settings
         self.map.delegate = self
@@ -248,7 +248,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         self.map.setRegion(region, animated: true)
         locationManager.stopUpdatingLocation()
         
-            getDirections()
+        // getDirections()
     
         if providedPath {
             getPathDirections()
