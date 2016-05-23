@@ -28,22 +28,21 @@ class PathTabController: UIViewController, UITableViewDataSource, UITableViewDel
         }
     }
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        //checkCount()
-    }
-    
-    func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath){
-        //checkCount()
-    }
-    
-    func checkCount(){
-        if let list = self.pathTable.indexPathsForSelectedRows {
-            if list.count > 1 {
-                pathBool = true
-            }else if list.count == 1 {
-                pathBool = false
-            }
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
+        
+        let destinationVC = segue.destinationViewController as! UINavigationController
+        let viewController = destinationVC.viewControllers[0] as! ViewController
+        viewController.providedPath = true
+        viewController.providedLocation = false
+        var pathList: [Location] = []
+        
+        let rows = self.pathTable.indexPathsForSelectedRows?.map{$0.row}
+        var pathToSend: Path = path![rows![0]]
+        for aresponse in pathToSend.location!{
+            pathList.append(aresponse as! Location)
         }
+        viewController.locs.removeAll()
+        viewController.locs = pathList
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

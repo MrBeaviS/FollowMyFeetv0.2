@@ -161,7 +161,7 @@
                                         <rect key="frame" x="0.0" y="28" width="600" height="44"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" tag="1" contentMode="center" tableViewCell="92p-sT-5f6" id="xxy-Gf-IWR">
-                                            <rect key="frame" x="0.0" y="0.0" width="600" height="43.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" tag="3" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Subtitle" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ory-3p-H5O">
@@ -202,7 +202,11 @@
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
                                 <items>
                                     <navigationItem title="Locations" id="6CN-ZI-jsF">
-                                        <barButtonItem key="leftBarButtonItem" title="Save Path" id="0Eq-hN-M0Z"/>
+                                        <barButtonItem key="leftBarButtonItem" title="Save Path" id="0Eq-hN-M0Z">
+                                            <connections>
+                                                <action selector="saveAPath:" destination="aj2-Oh-NCs" id="zuj-PT-4C7"/>
+                                            </connections>
+                                        </barButtonItem>
                                         <barButtonItem key="rightBarButtonItem" title="Create Location" id="edl-lt-OoG">
                                             <connections>
                                                 <segue destination="lrK-3B-g7p" kind="show" id="uCa-2U-oBl"/>
@@ -258,6 +262,6 @@
         <image name="Route Sign" width="30" height="30"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="dwl-6x-50b"/>
+        <segue reference="uCa-2U-oBl"/>
     </inferredMetricsTieBreakers>
 </document>

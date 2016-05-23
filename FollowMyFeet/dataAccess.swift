@@ -31,9 +31,10 @@ class dataAccess {
     
     func createPath(name: String, info: String, loc: [Location]){
         let storedLocation: Path = NSEntityDescription.insertNewObjectForEntityForName("Path", inManagedObjectContext: managedObjectContext) as! Path
-        let locationArray = storedLocation.valueForKeyPath("location") as! NSMutableSet
+        
+        //let locationArray = storedLocation.valueForKeyPath("location") as! NSMutableSet
         for i in loc {
-            locationArray.addObject(i)
+            storedLocation.mutableSetValueForKey("location").addObject(i)
         }
         storedLocation.name = name
         storedLocation.info = info

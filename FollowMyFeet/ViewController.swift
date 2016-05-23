@@ -146,11 +146,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             annotation.subtitle = annotationInfo
             self.map.addAnnotation(annotation)
             let temp = self.data.createLocation(newCoordinate, latDelta: 0.01, longDelta: 0.01, name: annotationName!, info: annotationInfo!)
-            print("TEST START")
-            print(self.locs.count)
             self.locs.append(temp)
-            print(self.locs.count)
-            print("TEST STOP")
             self.clearMap()
             self.loadAnnotations()
             self.getDirections(self.currentUserLocation!.coordinate.latitude, longitude: self.currentUserLocation!.coordinate.longitude)
@@ -198,7 +194,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         for _ in 0..<columns {
             paths.append(Array(count:rows,repeatedValue: MKRoute()))
         }
-        for i in 0..<locs.count{
+        for i in 0..<locs.count-1{
             for x in  1..<locs.count{
                 if x >= i {
                     let request = MKDirectionsRequest()
@@ -206,16 +202,13 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
                     
                     request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[x].latitude!), longitude: Double(locs[x].longitude!)), addressDictionary: nil))
                     request.transportType = .Walking
-                    
                     let directions = MKDirections(request: request)
-                    print("I: " + String(i) + " | " + "X: " + String(x))
                     directions.calculateDirectionsWithCompletionHandler {
                         response, error in
-                        
                         guard let unwrappedResponse = response else { print(error); return }
                         paths[i][x] = unwrappedResponse.routes[0]
                         paths[x][i] = unwrappedResponse.routes[0]
-                        if i == rows-1 && x == rows-1 {
+                        if i == rows-2 && x == rows-1 {
                             self.shortestPathArray = self.determineOptimalPath(paths)
                             print("Gunna Print me some paths")
                             for path in self.shortestPathArray{
