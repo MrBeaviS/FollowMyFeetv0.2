@@ -21,6 +21,11 @@ class PathTabController: UIViewController, UITableViewDataSource, UITableViewDel
         pathTable.delegate = self
         pathTable.dataSource = self
         
+        //path = data.getAllPaths()
+        print(path.count)
+        for i in path{
+            print(i.name)
+        }
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
@@ -42,12 +47,13 @@ class PathTabController: UIViewController, UITableViewDataSource, UITableViewDel
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1;
+        return path!.count;
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
-        
+        cell.textLabel?.text = path[0].name
+        cell.detailTextLabel?.text = path[0].info
         return cell;
     }
     

@@ -16,7 +16,7 @@ class dataAccess {
     static let sharedInstance = dataAccess()
     let managedObjectContext = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
     
-    func createLocation(location: CLLocationCoordinate2D, latDelta: CLLocationDegrees, longDelta: CLLocationDegrees, name: String, info: String) {
+    func createLocation(location: CLLocationCoordinate2D, latDelta: CLLocationDegrees, longDelta: CLLocationDegrees, name: String, info: String) -> Location{
         print(location)
         let storedLocation: Location = NSEntityDescription.insertNewObjectForEntityForName("Location", inManagedObjectContext: managedObjectContext) as! Location
         storedLocation.latitude = location.latitude
@@ -27,6 +27,7 @@ class dataAccess {
         storedLocation.info = info
         storedLocation.dateCreated = NSDate()
         self.saveData()
+        return storedLocation
     }
     
     func createPath(name: String, info: String, loc: [Location]){
@@ -37,6 +38,7 @@ class dataAccess {
         }
         storedLocation.name = name
         storedLocation.info = info
+        self.saveData()
     }
     
     func getAllPaths() -> [Path] {

@@ -28,14 +28,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         super.viewDidLoad()
         self.map.showsUserLocation = true
         clearMap()
-        /*loadAnnotations()
-        if providedPath{
-            locs.append(locs[0])
-            for i in locs{
-                placePins(i)
-            }
-        }*/
-        
+        loadAnnotations()
         //Will access the users location and update when there is a change (Will only work if the user agrees to use location settings
         self.map.delegate = self
         locationManager.delegate = self
@@ -55,7 +48,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     //action finction recieves var gestureRecogniser
     func action(gestureRecogniser : UIGestureRecognizer){
-        print("gesture Recognised")
         let touchPoint = gestureRecogniser.locationInView(self.map)
         let newCoordinate : CLLocationCoordinate2D = map.convertPoint(touchPoint, toCoordinateFromView: self.map)
         pinCreate(newCoordinate)
@@ -69,12 +61,10 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     }
     
     func loadAnnotations(){
-        if providedPath{
-            locs.append(locs[0])
-            for i in locs{
-                placePins(i)
-            }
-        }
+       
+            for i in 0..<locs.count{
+                placePins(locs[i])
+            }    
     }
     
     func pinCreate(newCoordinate: CLLocationCoordinate2D){
@@ -104,12 +94,39 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             self.map.addAnnotation(annotation)
             self.data.createLocation(newCoordinate, latDelta: 0.01, longDelta: 0.01, name: annotationName!, info: annotationInfo!)
         }
-        let createAndAddButton = UIAlertAction(title: "Create Location And Add To Path", style: .Default) { (alert: UIAlertAction!) -> Void in
-        }
+        addLocationAlert.addAction(createAndAddButton(addLocationAlert, newCoordinate: newCoordinate))
         addLocationAlert.addAction(cancelButton)
         addLocationAlert.addAction(createLocationButton)
-        addLocationAlert.addAction(createAndAddButton)
         presentViewController(addLocationAlert, animated:true, completion: nil)
+    }
+    
+    
+    
+    
+    
+    func createAndAddButton(addLocationAlert: UIAlertController, newCoordinate: CLLocationCoordinate2D) -> UIAlertAction {
+        var annotationName: String?
+        var annotationInfo: String?
+        let button = UIAlertAction(title: "Create Location And Add To Path", style: .Default) { (alert: UIAlertAction!) -> Void in
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = newCoordinate
+            if let text = addLocationAlert.textFields![0].text where !text.isEmpty {
+                annotationName = text
+            }
+            if let text = addLocationAlert.textFields![1].text where !text.isEmpty {
+                annotationInfo = text
+            }
+            annotation.title = annotationName
+            annotation.subtitle = annotationInfo
+            self.map.addAnnotation(annotation)
+            let temp = self.data.createLocation(newCoordinate, latDelta: 0.01, longDelta: 0.01, name: annotationName!, info: annotationInfo!)
+            self.locs.append(temp)
+            self.clearMap()
+            self.loadAnnotations()
+            self.getDirections()
+            self.getPathDirections()
+        }
+        return button
         
     }
     
@@ -126,14 +143,15 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     }
     
     func getPathDirections() {
+        print("getting path directions")
         var paths = Array<Array<MKRoute>>()
-        let rows = locs.count-1
+        let rows = locs.count
         let columns = rows
         for _ in 0..<columns {
             paths.append(Array(count:rows,repeatedValue: MKRoute()))
         }
-        for i in 0..<locs.count-1{
-            for x in  0..<locs.count-1{
+        for i in 0...locs.count-1{
+            for x in  0...locs.count-1{
                 let request = MKDirectionsRequest()
                 request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[i].latitude!), longitude: Double(locs[i].longitude!)), addressDictionary: nil))
                 
@@ -148,6 +166,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
                     paths[i][x] = unwrappedResponse.routes[0]
                     if i == rows-1 && x == rows-1 {
                         self.shortestPathArray = self.determineOptimalPath(paths)
+                        print( self.shortestPathArray.count)
                         for path in self.shortestPathArray{
                             self.drawPaths(path)
                         }
@@ -158,19 +177,19 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     }
     
     func determineOptimalPath(distances:Array<Array<MKRoute>>) -> Array<MKRoute>{
+        print("getting optimal path")
         var tempRoute = MKRoute()
         var visted: [Bool] = []
-        for _ in 0..<locs.count-1{
+        for _ in 0..<locs.count{
             visted.append(false)
         }
         var temp:Int = 0
         var shortestPath: Double = 999999999
         var previousNode: Int = 0
-        while shortestPathArray.count != locs.count-1{
-            for x in  0..<locs.count-1{
+        while shortestPathArray.count != locs.count{
+            for x in  0..<locs.count{
                 if distances[previousNode][x].distance < shortestPath && distances[previousNode][x].distance != 0 {
                     if !visted[x] && previousNode != x{
-                        print(String(previousNode) + " : " + String(x))
                         shortestPath = distances[previousNode][x].distance
                         tempRoute = distances[previousNode][x]
                         temp = x
@@ -205,7 +224,8 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     func mapView(mapView: MKMapView, rendererForOverlay overlay: MKOverlay) -> MKOverlayRenderer {
         let renderer = MKPolylineRenderer(polyline: overlay as! MKPolyline)
-        renderer.strokeColor = getRandomColor()
+        //renderer.strokeColor = getRandomColor()
+        renderer.strokeColor = UIColor.blueColor()
         renderer.lineWidth = 2.0
         return renderer
     }
@@ -248,9 +268,14 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         self.map.setRegion(region, animated: true)
         locationManager.stopUpdatingLocation()
         
-        // getDirections()
-    
-        if providedPath {
+        
+        if providedLocation{
+            print("location")
+            getDirections()
+        }else if providedPath {
+            print("path")
+            print(locs.count)
+            getDirections()
             getPathDirections()
             providedPath=false
         }
