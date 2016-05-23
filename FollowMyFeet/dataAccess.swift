@@ -12,7 +12,6 @@ import UIKit
 import MapKit
 
 class dataAccess {
-//    dispatch_once
     static let sharedInstance = dataAccess()
     let managedObjectContext = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
     

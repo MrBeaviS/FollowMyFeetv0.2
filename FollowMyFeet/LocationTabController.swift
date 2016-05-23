@@ -12,10 +12,7 @@ import CoreData
 import MapKit
 class LocationTabController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
-    /*@IBOutlet weak var savePathButton: UIBarButtonItem!
-     @IBAction func savePath(sender: AnyObject) {
-     //data.createPath("test1", info: "this is a test", loc: locs)
-     }*/
+    
     
     @IBOutlet weak var viewMap: UIBarButtonItem!
     @IBOutlet weak var locationTable: UITableView!

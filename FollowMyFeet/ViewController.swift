@@ -123,7 +123,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             self.locs.append(temp)
             self.clearMap()
             self.loadAnnotations()
-            self.getDirections()
+            // self.getDirections()
             self.getPathDirections()
         }
         return button
@@ -150,8 +150,8 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         for _ in 0..<columns {
             paths.append(Array(count:rows,repeatedValue: MKRoute()))
         }
-        for i in 0...locs.count-1{
-            for x in  0...locs.count-1{
+        for i in 0..<locs.count{
+            for x in  0..<locs.count{
                 let request = MKDirectionsRequest()
                 request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[i].latitude!), longitude: Double(locs[i].longitude!)), addressDictionary: nil))
                 
@@ -166,9 +166,9 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
                     paths[i][x] = unwrappedResponse.routes[0]
                     if i == rows-1 && x == rows-1 {
                         self.shortestPathArray = self.determineOptimalPath(paths)
-                        print( self.shortestPathArray.count)
+                        print("Gunna Print me some paths")
                         for path in self.shortestPathArray{
-                            self.drawPaths(path)
+                             self.drawPaths(path)
                         }
                     }
                 }
@@ -180,7 +180,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         print("getting optimal path")
         var tempRoute = MKRoute()
         var visted: [Bool] = []
-        for _ in 0..<locs.count{
+        for _ in 0...locs.count{
             visted.append(false)
         }
         var temp:Int = 0
@@ -205,9 +205,9 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         return shortestPathArray
     }
     
-    func getDirections() {
+    func getDirections(latitude: CLLocationDegrees, longitude: CLLocationDegrees) {
         let request = MKDirectionsRequest()
-        request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: (currentUserLocation?.coordinate.latitude)!, longitude: (currentUserLocation?.coordinate.longitude)!), addressDictionary: nil))
+        request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: (latitude), longitude: (longitude)), addressDictionary: nil))
         
         request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[0].latitude!), longitude: Double(locs[0].longitude!)), addressDictionary: nil))
         
@@ -224,8 +224,8 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     func mapView(mapView: MKMapView, rendererForOverlay overlay: MKOverlay) -> MKOverlayRenderer {
         let renderer = MKPolylineRenderer(polyline: overlay as! MKPolyline)
-        //renderer.strokeColor = getRandomColor()
-        renderer.strokeColor = UIColor.blueColor()
+        renderer.strokeColor = getRandomColor()
+        //renderer.strokeColor = UIColor.blueColor()
         renderer.lineWidth = 2.0
         return renderer
     }
@@ -267,18 +267,25 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
         self.map.setRegion(region, animated: true)
         locationManager.stopUpdatingLocation()
-        
+        //TO DO: fix the bug if only two locations selected.
         
         if providedLocation{
             print("location")
-            getDirections()
+            getDirections(latitude, longitude: longitude)
         }else if providedPath {
+            
             print("path")
             print(locs.count)
-            getDirections()
-            getPathDirections()
+            getDirections(latitude, longitude: longitude)
+            if locs.count > 2 {
+                
+                getPathDirections()
+            }else {
+                getDirections(locs[1].latitude as! CLLocationDegrees, longitude: locs[1].longitude as! CLLocationDegrees)
+            }
             providedPath=false
-        }
+            }
+        
         
     }
     

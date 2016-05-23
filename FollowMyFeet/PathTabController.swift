@@ -21,7 +21,7 @@ class PathTabController: UIViewController, UITableViewDataSource, UITableViewDel
         pathTable.delegate = self
         pathTable.dataSource = self
         
-        //path = data.getAllPaths()
+        path = data.getAllPaths()
         print(path.count)
         for i in path{
             print(i.name)
