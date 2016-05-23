@@ -24,6 +24,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     var shortestPathArray = Array<MKRoute>()
     var providedLocation: Bool = false
     var providedPath: Bool = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.map.showsUserLocation = true
@@ -46,6 +47,47 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
     }
     
+    //handles the location ablities
+    func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
+        
+        currentUserLocation = locations[0]
+        
+        //extracts the user lat/long
+        let latitude = currentUserLocation!.coordinate.latitude
+        let longitude = currentUserLocation!.coordinate.longitude
+        
+        let latDelta : CLLocationDegrees = 0.025 //0.01 is zoomed in, 0.1 is fairly zoomed out
+        let longDelta : CLLocationDegrees = 0.025
+        
+        //combination of 2 deltas, 2 changes between degrees
+        let span : MKCoordinateSpan = MKCoordinateSpanMake(latDelta, longDelta)
+        
+        let location : CLLocationCoordinate2D = CLLocationCoordinate2DMake(latitude, longitude)
+        
+        let region : MKCoordinateRegion = MKCoordinateRegionMake(location, span)
+        
+        self.map.setRegion(region, animated: true)
+        locationManager.stopUpdatingLocation()
+        //TO DO: fix the bug if only two locations selected.
+        
+        if providedLocation{
+            print("location")
+            getDirections(latitude, longitude: longitude)
+        }else if providedPath {
+            
+            print("path")
+            print(locs.count)
+            getDirections(latitude, longitude: longitude)
+            if locs.count > 2 {
+                getPathDirections()
+            }else {
+                getDirections(locs[1].latitude as! CLLocationDegrees, longitude: locs[1].longitude as! CLLocationDegrees)
+            }
+            providedPath=false
+        }
+    }
+    
     //action finction recieves var gestureRecogniser
     func action(gestureRecogniser : UIGestureRecognizer){
         let touchPoint = gestureRecogniser.locationInView(self.map)
@@ -53,20 +95,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         pinCreate(newCoordinate)
     }
     
-    func clearMap(){
-        let overlays = map.overlays
-        map.removeOverlays(overlays)
-        let annotationsToRemove = map.annotations.filter { $0 !== map.userLocation }
-        map.removeAnnotations( annotationsToRemove )
-    }
-    
-    func loadAnnotations(){
-       
-            for i in 0..<locs.count{
-                placePins(locs[i])
-            }    
-    }
-    
+    //creates a new annotation
     func pinCreate(newCoordinate: CLLocationCoordinate2D){
         var annotationName: String?
         var annotationInfo: String?
@@ -100,10 +129,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         presentViewController(addLocationAlert, animated:true, completion: nil)
     }
     
-    
-    
-    
-    
+    //creates a button and haldnles the re drawing of the paths in the route
     func createAndAddButton(addLocationAlert: UIAlertController, newCoordinate: CLLocationCoordinate2D) -> UIAlertAction {
         var annotationName: String?
         var annotationInfo: String?
@@ -120,16 +146,37 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             annotation.subtitle = annotationInfo
             self.map.addAnnotation(annotation)
             let temp = self.data.createLocation(newCoordinate, latDelta: 0.01, longDelta: 0.01, name: annotationName!, info: annotationInfo!)
+            print("TEST START")
+            print(self.locs.count)
             self.locs.append(temp)
+            print(self.locs.count)
+            print("TEST STOP")
             self.clearMap()
             self.loadAnnotations()
-            // self.getDirections()
+            self.getDirections(self.currentUserLocation!.coordinate.latitude, longitude: self.currentUserLocation!.coordinate.longitude)
             self.getPathDirections()
         }
         return button
         
     }
     
+    //clears the maps of annotations and paths
+    func clearMap(){
+        let overlays = map.overlays
+        map.removeOverlays(overlays)
+        let annotationsToRemove = map.annotations.filter { $0 !== map.userLocation }
+        map.removeAnnotations( annotationsToRemove )
+    }
+    
+    //loads the list of annotations
+    func loadAnnotations(){
+        
+        for i in 0..<locs.count{
+            placePins(locs[i])
+        }
+    }
+    
+    //places the individual annotation pins at tehre location
     func placePins(loc: Location){
         let annotation = MKPointAnnotation()
         let latitude: CLLocationDegrees = loc.latitude as! CLLocationDegrees
@@ -142,6 +189,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         map.addAnnotation(annotation)
     }
     
+    //gets the path for all the current clocations
     func getPathDirections() {
         print("getting path directions")
         var paths = Array<Array<MKRoute>>()
@@ -151,24 +199,28 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             paths.append(Array(count:rows,repeatedValue: MKRoute()))
         }
         for i in 0..<locs.count{
-            for x in  0..<locs.count{
-                let request = MKDirectionsRequest()
-                request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[i].latitude!), longitude: Double(locs[i].longitude!)), addressDictionary: nil))
-                
-                request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[x].latitude!), longitude: Double(locs[x].longitude!)), addressDictionary: nil))
-                request.requestsAlternateRoutes = true
-                request.transportType = .Walking
-                let directions = MKDirections(request: request)
-                
-                directions.calculateDirectionsWithCompletionHandler {
-                    response, error in
-                    guard let unwrappedResponse = response else { print(error); return }
-                    paths[i][x] = unwrappedResponse.routes[0]
-                    if i == rows-1 && x == rows-1 {
-                        self.shortestPathArray = self.determineOptimalPath(paths)
-                        print("Gunna Print me some paths")
-                        for path in self.shortestPathArray{
-                             self.drawPaths(path)
+            for x in  1..<locs.count{
+                if x >= i {
+                    let request = MKDirectionsRequest()
+                    request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[i].latitude!), longitude: Double(locs[i].longitude!)), addressDictionary: nil))
+                    
+                    request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[x].latitude!), longitude: Double(locs[x].longitude!)), addressDictionary: nil))
+                    request.transportType = .Walking
+                    
+                    let directions = MKDirections(request: request)
+                    print("I: " + String(i) + " | " + "X: " + String(x))
+                    directions.calculateDirectionsWithCompletionHandler {
+                        response, error in
+                        
+                        guard let unwrappedResponse = response else { print(error); return }
+                        paths[i][x] = unwrappedResponse.routes[0]
+                        paths[x][i] = unwrappedResponse.routes[0]
+                        if i == rows-1 && x == rows-1 {
+                            self.shortestPathArray = self.determineOptimalPath(paths)
+                            print("Gunna Print me some paths")
+                            for path in self.shortestPathArray{
+                                self.drawPaths(path)
+                            }
                         }
                     }
                 }
@@ -176,6 +228,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         }
     }
     
+    //determines the most optimal path between all the locations
     func determineOptimalPath(distances:Array<Array<MKRoute>>) -> Array<MKRoute>{
         print("getting optimal path")
         var tempRoute = MKRoute()
@@ -184,7 +237,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             visted.append(false)
         }
         var temp:Int = 0
-        var shortestPath: Double = 999999999
+        var shortestPath: Double = Double.infinity
         var previousNode: Int = 0
         while shortestPathArray.count != locs.count{
             for x in  0..<locs.count{
@@ -199,13 +252,15 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             visted[previousNode] = true
             previousNode = temp
             shortestPathArray.append(tempRoute)
-            shortestPath = 999999999
+            shortestPath = Double.infinity
         }
         shortestPathArray.append(distances[previousNode][0])
         return shortestPathArray
     }
     
+    //get the directions from the current users location to the first location
     func getDirections(latitude: CLLocationDegrees, longitude: CLLocationDegrees) {
+        print("getting directiosn from location")
         let request = MKDirectionsRequest()
         request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: (latitude), longitude: (longitude)), addressDictionary: nil))
         
@@ -222,6 +277,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         }
     }
     
+    //defines the line style that is displayed as a path
     func mapView(mapView: MKMapView, rendererForOverlay overlay: MKOverlay) -> MKOverlayRenderer {
         let renderer = MKPolylineRenderer(polyline: overlay as! MKPolyline)
         renderer.strokeColor = getRandomColor()
@@ -230,6 +286,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         return renderer
     }
     
+    //generates a random colour
     func getRandomColor() -> UIColor {
         let randomRed:CGFloat = CGFloat(arc4random()) / CGFloat(UInt32.max)
         let randomGreen:CGFloat = CGFloat(arc4random()) / CGFloat(UInt32.max)
@@ -237,55 +294,11 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         return UIColor(red: randomRed, green: randomGreen, blue: randomBlue, alpha: 1.0)
     }
     
+    //draws the individual paths on the map
     func drawPaths(path: MKRoute){
         path.polyline.title = "route"
         self.map.addOverlay(path.polyline)
         self.map.setVisibleMapRect(path.polyline.boundingMapRect,edgePadding: UIEdgeInsets(top: 50.0, left: 50.0, bottom: 50.0, right: 50.0), animated: true)
-        
-    }
-    
-    
-    
-    func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        
-        
-        currentUserLocation = locations[0]
-        
-        //extracts the user lat/long
-        let latitude = currentUserLocation!.coordinate.latitude
-        let longitude = currentUserLocation!.coordinate.longitude
-        
-        let latDelta : CLLocationDegrees = 0.025 //0.01 is zoomed in, 0.1 is fairly zoomed out
-        let longDelta : CLLocationDegrees = 0.025
-        
-        //combination of 2 deltas, 2 changes between degrees
-        let span : MKCoordinateSpan = MKCoordinateSpanMake(latDelta, longDelta)
-        
-        let location : CLLocationCoordinate2D = CLLocationCoordinate2DMake(latitude, longitude)
-        
-        let region : MKCoordinateRegion = MKCoordinateRegionMake(location, span)
-        
-        self.map.setRegion(region, animated: true)
-        locationManager.stopUpdatingLocation()
-        //TO DO: fix the bug if only two locations selected.
-        
-        if providedLocation{
-            print("location")
-            getDirections(latitude, longitude: longitude)
-        }else if providedPath {
-            
-            print("path")
-            print(locs.count)
-            getDirections(latitude, longitude: longitude)
-            if locs.count > 2 {
-                
-                getPathDirections()
-            }else {
-                getDirections(locs[1].latitude as! CLLocationDegrees, longitude: locs[1].longitude as! CLLocationDegrees)
-            }
-            providedPath=false
-            }
-        
         
     }
     
