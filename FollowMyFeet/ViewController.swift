@@ -187,7 +187,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     //gets the path for all the current clocations
     func getPathDirections() {
-        print("getting path directions")
         var paths = Array<Array<MKRoute>>()
         let rows = locs.count
         let columns = rows
@@ -210,7 +209,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
                         paths[x][i] = unwrappedResponse.routes[0]
                         if i == rows-2 && x == rows-1 {
                             self.shortestPathArray = self.determineOptimalPath(paths)
-                            print("Gunna Print me some paths")
                             for path in self.shortestPathArray{
                                 self.drawPaths(path)
                             }
@@ -223,7 +221,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     //determines the most optimal path between all the locations
     func determineOptimalPath(distances:Array<Array<MKRoute>>) -> Array<MKRoute>{
-        print("getting optimal path")
         var tempRoute = MKRoute()
         var visted: [Bool] = []
         for _ in 0...locs.count{
@@ -253,7 +250,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     //get the directions from the current users location to the first location
     func getDirections(latitude: CLLocationDegrees, longitude: CLLocationDegrees) {
-        print("getting directiosn from location")
         let request = MKDirectionsRequest()
         request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: (latitude), longitude: (longitude)), addressDictionary: nil))
         

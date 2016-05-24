@@ -37,7 +37,7 @@ class PathTabController: UIViewController, UITableViewDataSource, UITableViewDel
         var pathList: [Location] = []
         
         let rows = self.pathTable.indexPathsForSelectedRows?.map{$0.row}
-        var pathToSend: Path = path![rows![0]]
+        let pathToSend: Path = path![rows![0]]
         for aresponse in pathToSend.location!{
             pathList.append(aresponse as! Location)
         }
@@ -51,8 +51,8 @@ class PathTabController: UIViewController, UITableViewDataSource, UITableViewDel
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
-        cell.textLabel?.text = path[0].name
-        cell.detailTextLabel?.text = path[0].info
+        cell.textLabel?.text = path[indexPath.item].name
+        cell.detailTextLabel?.text = path[indexPath.item].info
         return cell;
     }
     
