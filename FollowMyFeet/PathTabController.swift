@@ -10,7 +10,10 @@ import Foundation
 import UIKit
 import CoreData
 class PathTabController: UIViewController, UITableViewDataSource, UITableViewDelegate {
-    
+
+    @IBAction func ReturnToMap(sender: UIBarButtonItem) {
+        self.dismissViewControllerAnimated(false, completion: nil)
+    }
     var data: dataAccess = dataAccess.sharedInstance
     @IBOutlet weak var pathTable: UITableView!
     var path: [Path]!
@@ -20,18 +23,13 @@ class PathTabController: UIViewController, UITableViewDataSource, UITableViewDel
         super.viewDidLoad()
         pathTable.delegate = self
         pathTable.dataSource = self
-        
         path = data.getAllPaths()
-        print(path.count)
-        for i in path{
-            print(i.name)
-        }
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
         
-        let destinationVC = segue.destinationViewController as! UINavigationController
-        let viewController = destinationVC.viewControllers[0] as! ViewController
+        let destinationVC = segue.destinationViewController as! ViewController
+        let viewController = destinationVC
         viewController.providedPath = true
         viewController.providedLocation = false
         var pathList: [Location] = []

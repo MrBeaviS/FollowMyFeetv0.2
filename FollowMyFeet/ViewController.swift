@@ -13,6 +13,8 @@ import CoreLocation
 
 class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate {
     
+    @IBOutlet weak var locationButton: UIButton!
+    @IBOutlet weak var saveButton: UIButton!
     @IBOutlet weak var map: MKMapView!
     
     let locationManager = CLLocationManager()
@@ -28,6 +30,12 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     override func viewDidLoad() {
         super.viewDidLoad()
         self.map.showsUserLocation = true
+        locationButton.layer.cornerRadius = 0.5 * locationButton.bounds.size.width
+        locationButton.layer.borderWidth = 0.8
+        locationButton.layer.borderColor = UIColor.blackColor().CGColor
+        saveButton.layer.cornerRadius = 0.5 * saveButton.bounds.size.width
+        saveButton.layer.borderWidth = 0.8
+        saveButton.layer.borderColor = UIColor.blackColor().CGColor
         clearMap()
         loadAnnotations()
         //Will access the users location and update when there is a change (Will only work if the user agrees to use location settings
@@ -70,21 +78,18 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         self.map.setRegion(region, animated: true)
         locationManager.stopUpdatingLocation()
         //TO DO: fix the bug if only two locations selected.
-        
-        if providedLocation{
-            print("location")
-            getDirections(latitude, longitude: longitude)
-        }else if providedPath {
-            
-            print("path")
-            print(locs.count)
-            getDirections(latitude, longitude: longitude)
-            if locs.count > 2 {
-                getPathDirections()
-            }else {
-                getDirections(locs[1].latitude as! CLLocationDegrees, longitude: locs[1].longitude as! CLLocationDegrees)
+        if locs.count != 0 {
+            if providedLocation{
+                getDirections(latitude, longitude: longitude)
+            }else if providedPath {
+                getOptimalFromUserLoc(latitude, longitude: longitude)
+                if locs.count > 2 {
+                    getPathDirections()
+                }else {
+                    getDirections(locs[1].latitude as! CLLocationDegrees, longitude: locs[1].longitude as! CLLocationDegrees)
+                }
+                providedPath=false
             }
-            providedPath=false
         }
     }
     
@@ -121,7 +126,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             annotation.title = annotationName
             annotation.subtitle = annotationInfo
             self.map.addAnnotation(annotation)
-            self.data.createLocation(newCoordinate, latDelta: 0.01, longDelta: 0.01, name: annotationName!, info: annotationInfo!)
+            //self.data.createLocation(newCoordinate, latDelta: 0.01, longDelta: 0.01, name: annotationName!, info: annotationInfo!)
         }
         addLocationAlert.addAction(createAndAddButton(addLocationAlert, newCoordinate: newCoordinate))
         addLocationAlert.addAction(cancelButton)
@@ -212,6 +217,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
                             for path in self.shortestPathArray{
                                 self.drawPaths(path)
                             }
+                            self.zoomToFitMapAnnotations()
                         }
                     }
                 }
@@ -248,6 +254,32 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         return shortestPathArray
     }
     
+    func getOptimalFromUserLoc(latitude: CLLocationDegrees, longitude: CLLocationDegrees){
+        var path: MKRoute?
+        for i in 0..<locs.count-1{
+            let request = MKDirectionsRequest()
+            request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: (latitude), longitude: (longitude)), addressDictionary: nil))
+            
+            request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[i].latitude!), longitude: Double(locs[i].longitude!)), addressDictionary: nil))
+            
+            request.requestsAlternateRoutes = true
+            request.transportType = .Walking
+            let directions = MKDirections(request: request)
+            
+            directions.calculateDirectionsWithCompletionHandler {
+                response, error in
+                guard let unwrappedResponse = response else { print(error); return }
+                if path == nil{ path = unwrappedResponse.routes[0] }
+                if unwrappedResponse.routes[0].distance < path?.distance{
+                    path = unwrappedResponse.routes[0]
+                }
+                if i == self.locs.count-2 {self.drawPaths(path!)}
+                
+            }
+        }
+        
+    }
+    
     //get the directions from the current users location to the first location
     func getDirections(latitude: CLLocationDegrees, longitude: CLLocationDegrees) {
         let request = MKDirectionsRequest()
@@ -275,6 +307,38 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         return renderer
     }
     
+    func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
+        var view = mapView.dequeueReusableAnnotationViewWithIdentifier("AnnotationView Id")
+        if view == nil{
+            view = MKPinAnnotationView(annotation: annotation, reuseIdentifier: "AnnotationView Id")
+            view!.canShowCallout = true
+        } else {
+            view!.annotation = annotation
+        }
+        
+        view?.leftCalloutAccessoryView = nil
+        view?.rightCalloutAccessoryView = UIButton(type: UIButtonType.ContactAdd)
+        
+        return view
+    }
+    
+    func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+        if (control as? UIButton)?.buttonType == UIButtonType.ContactAdd {
+            var saveLoc: Bool = true
+            let currentPin = view.annotation?.coordinate
+            for location in locs {
+                if location.latitude == currentPin?.latitude {
+                    if location.longitude == currentPin?.longitude {
+                        saveLoc = false
+                    }
+                }
+            }
+            print(saveLoc)
+            
+        }
+    }
+    
+    
     //generates a random colour
     func getRandomColor() -> UIColor {
         let randomRed:CGFloat = CGFloat(arc4random()) / CGFloat(UInt32.max)
@@ -287,8 +351,34 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     func drawPaths(path: MKRoute){
         path.polyline.title = "route"
         self.map.addOverlay(path.polyline)
-        self.map.setVisibleMapRect(path.polyline.boundingMapRect,edgePadding: UIEdgeInsets(top: 50.0, left: 50.0, bottom: 50.0, right: 50.0), animated: true)
         
+    }
+    
+    func zoomToFitMapAnnotations() {
+        let aMapView: MKMapView = self.map
+        if aMapView.annotations.count == 0 {
+            return
+        }
+        var topLeftCoord: CLLocationCoordinate2D = CLLocationCoordinate2D()
+        topLeftCoord.latitude = -90
+        topLeftCoord.longitude = 180
+        var bottomRightCoord: CLLocationCoordinate2D = CLLocationCoordinate2D()
+        bottomRightCoord.latitude = 90
+        bottomRightCoord.longitude = -180
+        for annotation: MKAnnotation in self.map.annotations {
+            topLeftCoord.longitude = fmin(topLeftCoord.longitude, annotation.coordinate.longitude)
+            topLeftCoord.latitude = fmax(topLeftCoord.latitude, annotation.coordinate.latitude)
+            bottomRightCoord.longitude = fmax(bottomRightCoord.longitude, annotation.coordinate.longitude)
+            bottomRightCoord.latitude = fmin(bottomRightCoord.latitude, annotation.coordinate.latitude)
+        }
+        
+        var region: MKCoordinateRegion = MKCoordinateRegion()
+        region.center.latitude = topLeftCoord.latitude - (topLeftCoord.latitude - bottomRightCoord.latitude) * 0.5
+        region.center.longitude = topLeftCoord.longitude + (bottomRightCoord.longitude - topLeftCoord.longitude) * 0.5
+        region.span.latitudeDelta = fabs(topLeftCoord.latitude - bottomRightCoord.latitude) * 1.4
+        region.span.longitudeDelta = fabs(bottomRightCoord.longitude - topLeftCoord.longitude) * 1.4
+        region = aMapView.regionThatFits(region)
+        self.map.setRegion(region, animated: true)
     }
     
     override func didReceiveMemoryWarning() {

@@ -12,6 +12,7 @@ import CoreData
 import MapKit
 class LocationViewController: UITableViewController {
     @IBAction func viewLocationOrPath(sender: AnyObject) {
+        
     }
     @IBOutlet var locationTable: UITableView!
     @IBOutlet weak var viewMap: UIButton!
@@ -35,6 +36,8 @@ class LocationViewController: UITableViewController {
                 viewController.locs.removeAll()
                 viewController.locs = L
             }
+            if locs.count != 0{
+            
                 if pathBool {
                     viewController.providedPath = true
                     viewController.providedLocation = false
@@ -42,6 +45,7 @@ class LocationViewController: UITableViewController {
                     viewController.providedLocation = true
                     viewController.providedPath = false
                 }
+            }
             
            
         }

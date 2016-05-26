@@ -12,7 +12,10 @@ import CoreData
 import MapKit
 class LocationTabController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
-    
+    @IBAction func ReturnToMap(sender: UIBarButtonItem) {
+        self.dismissViewControllerAnimated(false, completion: nil)
+
+    }
     @IBAction func saveAPath(sender: AnyObject) {
         var pathName: String?
         var pathInfo: String?
@@ -61,8 +64,8 @@ class LocationTabController: UIViewController, UITableViewDataSource, UITableVie
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
         
-        let destinationVC = segue.destinationViewController as! UINavigationController
-        let viewController = destinationVC.viewControllers[0] as! ViewController
+        let destinationVC = segue.destinationViewController as! ViewController
+        let viewController = destinationVC
         let locationList: [Location] = getSelectedLocations()
         viewController.locs.removeAll()
         viewController.locs = locationList
@@ -100,9 +103,8 @@ class LocationTabController: UIViewController, UITableViewDataSource, UITableVie
     
     func checkCount(){
         if let list = self.locationTable.indexPathsForSelectedRows {
-            if list.count == 0 {
-                viewMap.title = "Create Location"
-            }else if list.count == 1 {
+            if list.count == 1 {
+                viewMap.enabled = true
                 viewMap.title = "View Location"
             }else if list.count > 1 {
                 viewMap.title = "View Path"
