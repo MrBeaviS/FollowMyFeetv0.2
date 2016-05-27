@@ -11,9 +11,12 @@ import UIKit
 import MapKit
 import CoreLocation
 
-class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate {
+class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, UISearchBarDelegate {
     
     @IBOutlet weak var map: MKMapView!
+    
+    @IBOutlet weak var searchBar: UISearchBar!
+    
     
     let locationManager = CLLocationManager()
     var currentUserLocation: CLLocation?
@@ -24,12 +27,26 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     var shortestPathArray = Array<MKRoute>()
     var providedLocation: Bool = false
     var providedPath: Bool = false
+    
+    //searchBar
+    let searchController = UISearchController(searchResultsController: nil)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        //search Bar
+        searchController.searchResultsUpdater = self
+        searchController.dimsBackgroundDuringPresentation = false
+        definesPresentationContext = true
+//        tableView.tableHeaderView = searchController.searchBar
+        
         self.map.showsUserLocation = true
         clearMap()
         loadAnnotations()
+        
         //Will access the users location and update when there is a change (Will only work if the user agrees to use location settings
+
+
         self.map.delegate = self
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
@@ -44,6 +61,34 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
         map.addGestureRecognizer(uilpgr)
         
+    }
+    
+    func searchPOI(searchLoc : String?) {
+        let request = MKLocalSearchRequest()
+        request.naturalLanguageQuery = searchLoc
+        request.region = map.region
+        
+        let search = MKLocalSearch(request: request)
+        search.startWithCompletionHandler { response, error in
+            guard let response = response else {
+                print("There was an error searching for: \(request.naturalLanguageQuery) error: \(error)")
+                return
+            }
+            
+            for mItems in response.mapItems {
+
+                let annotation = MKPointAnnotation()
+                
+                annotation.title = mItems.name
+//                annotation.subtitle = mItems.phoneNumber
+                let latitude : CLLocationDegrees = (mItems.placemark.location?.coordinate.latitude)!
+                let longitude : CLLocationDegrees = (mItems.placemark.location?.coordinate.longitude)!
+                let location : CLLocationCoordinate2D = CLLocationCoordinate2DMake(latitude, longitude)
+                annotation.coordinate = location
+                self.map.addAnnotation(annotation)
+                
+            }
+        }
     }
     
     //action finction recieves var gestureRecogniser
@@ -99,9 +144,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         addLocationAlert.addAction(createLocationButton)
         presentViewController(addLocationAlert, animated:true, completion: nil)
     }
-    
-    
-    
     
     
     func createAndAddButton(addLocationAlert: UIAlertController, newCoordinate: CLLocationCoordinate2D) -> UIAlertAction {
@@ -279,6 +321,8 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             getPathDirections()
             providedPath=false
         }
+        
+//        searchPOI("Coffee")
         
     }
     
