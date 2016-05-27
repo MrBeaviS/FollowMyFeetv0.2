@@ -126,40 +126,41 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             annotation.title = annotationName
             annotation.subtitle = annotationInfo
             self.map.addAnnotation(annotation)
-            //self.data.createLocation(newCoordinate, latDelta: 0.01, longDelta: 0.01, name: annotationName!, info: annotationInfo!)
+            let temp = self.data.createLocation(newCoordinate, latDelta: 0.01, longDelta: 0.01, name: annotationName!, info: annotationInfo!)
+            self.locs.append(temp)
         }
-        addLocationAlert.addAction(createAndAddButton(addLocationAlert, newCoordinate: newCoordinate))
+        //addLocationAlert.addAction(createAndAddButton(addLocationAlert, newCoordinate: newCoordinate))
         addLocationAlert.addAction(cancelButton)
         addLocationAlert.addAction(createLocationButton)
         presentViewController(addLocationAlert, animated:true, completion: nil)
     }
     
-    //creates a button and haldnles the re drawing of the paths in the route
-    func createAndAddButton(addLocationAlert: UIAlertController, newCoordinate: CLLocationCoordinate2D) -> UIAlertAction {
-        var annotationName: String?
-        var annotationInfo: String?
-        let button = UIAlertAction(title: "Create Location And Add To Path", style: .Default) { (alert: UIAlertAction!) -> Void in
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = newCoordinate
-            if let text = addLocationAlert.textFields![0].text where !text.isEmpty {
-                annotationName = text
-            }
-            if let text = addLocationAlert.textFields![1].text where !text.isEmpty {
-                annotationInfo = text
-            }
-            annotation.title = annotationName
-            annotation.subtitle = annotationInfo
-            self.map.addAnnotation(annotation)
-            let temp = self.data.createLocation(newCoordinate, latDelta: 0.01, longDelta: 0.01, name: annotationName!, info: annotationInfo!)
-            self.locs.append(temp)
-            self.clearMap()
-            self.loadAnnotations()
-            self.getDirections(self.currentUserLocation!.coordinate.latitude, longitude: self.currentUserLocation!.coordinate.longitude)
-            self.getPathDirections()
-        }
-        return button
-        
-    }
+//    //creates a button and haldnles the re drawing of the paths in the route
+//    func createAndAddButton(addLocationAlert: UIAlertController, newCoordinate: CLLocationCoordinate2D) -> UIAlertAction {
+//        var annotationName: String?
+//        var annotationInfo: String?
+//        let button = UIAlertAction(title: "Create Location And Add To Path", style: .Default) { (alert: UIAlertAction!) -> Void in
+//            let annotation = MKPointAnnotation()
+//            annotation.coordinate = newCoordinate
+//            if let text = addLocationAlert.textFields![0].text where !text.isEmpty {
+//                annotationName = text
+//            }
+//            if let text = addLocationAlert.textFields![1].text where !text.isEmpty {
+//                annotationInfo = text
+//            }
+//            annotation.title = annotationName
+//            annotation.subtitle = annotationInfo
+//            self.map.addAnnotation(annotation)
+//            let temp = self.data.createLocation(newCoordinate, latDelta: 0.01, longDelta: 0.01, name: annotationName!, info: annotationInfo!)
+//            self.locs.append(temp)
+//            self.clearMap()
+//            self.loadAnnotations()
+//            self.getDirections(self.currentUserLocation!.coordinate.latitude, longitude: self.currentUserLocation!.coordinate.longitude)
+//            self.getPathDirections()
+//        }
+//        return button
+//        
+//    }
     
     //clears the maps of annotations and paths
     func clearMap(){
@@ -307,6 +308,8 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         return renderer
     }
     
+    
+    //creates a custom annotation view allowing the use of a button
     func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
         var view = mapView.dequeueReusableAnnotationViewWithIdentifier("AnnotationView Id")
         if view == nil{
@@ -322,22 +325,26 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         return view
     }
     
+    //the function that controlls the repsonviness of the button in each annoation view
     func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         if (control as? UIButton)?.buttonType == UIButtonType.ContactAdd {
             var saveLoc: Bool = true
-            let currentPin = view.annotation?.coordinate
+            let currentPin = view.annotation
             for location in locs {
-                if location.latitude == currentPin?.latitude {
-                    if location.longitude == currentPin?.longitude {
+                if location.latitude == currentPin?.coordinate.latitude {
+                    if location.longitude == currentPin?.coordinate.longitude {
                         saveLoc = false
                     }
                 }
             }
-            print(saveLoc)
+            if saveLoc {
+                print("Im Here")
+                let temp = self.data.createLocation((currentPin?.coordinate)!, latDelta: 0.01, longDelta: 0.01, name: ((currentPin?.title)!)!, info: (currentPin?.subtitle!)!)
+                self.locs.append(temp)
+            }
             
         }
     }
-    
     
     //generates a random colour
     func getRandomColor() -> UIColor {
