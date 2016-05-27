@@ -17,6 +17,34 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     @IBOutlet weak var saveButton: UIButton!
     @IBOutlet weak var map: MKMapView!
     @IBOutlet weak var searchBar: UISearchBar!
+    @IBAction func saveButtonAction(sender: UIButton!) {
+        if locs.count > 2{
+            var pathName: String?
+            var pathInfo: String?
+            let addPathAlert = UIAlertController(title:  "Add a Path",message: "Path Details", preferredStyle: UIAlertControllerStyle.Alert)
+            addPathAlert.addTextFieldWithConfigurationHandler { (textField: UITextField!) -> Void in
+                textField.placeholder = "Enter Path Name"
+            }
+            addPathAlert.addTextFieldWithConfigurationHandler { (textField: UITextField!) -> Void in
+                textField.placeholder = "Enter Path Info"
+            }
+            let cancelButton = UIAlertAction(title: "Cancel", style: .Default) { (alert: UIAlertAction!) -> Void in
+                addPathAlert.dismissViewControllerAnimated(true, completion: nil)
+            }
+            let createPathButton = UIAlertAction(title: "Create Path", style: .Default) { (alert: UIAlertAction!) -> Void in
+                if let text = addPathAlert.textFields![0].text where !text.isEmpty {
+                    pathName = text
+                }
+                if let text = addPathAlert.textFields![1].text where !text.isEmpty {
+                    pathInfo = text
+                }
+                self.data.createPath(pathName!, info: pathInfo!, loc: self.locs)
+            }
+            addPathAlert.addAction(cancelButton)
+            addPathAlert.addAction(createPathButton)
+            presentViewController(addPathAlert, animated:true, completion: nil)
+        }
+    }
     
     
     let locationManager = CLLocationManager()
@@ -39,6 +67,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         saveButton.layer.cornerRadius = 0.5 * saveButton.bounds.size.width
         saveButton.layer.borderWidth = 0.8
         saveButton.layer.borderColor = UIColor.blackColor().CGColor
+        print(locs.count)
         clearMap()
         loadAnnotations()
         
