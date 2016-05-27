@@ -69,6 +69,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     }
     
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+        self.clearMap()
         self.view.endEditing(true)
         searchInMap(searchBar.text!)
     }

@@ -49,8 +49,11 @@ class PathTabController: UIViewController, UITableViewDataSource, UITableViewDel
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
-        cell.textLabel?.text = path[indexPath.item].name
-        cell.detailTextLabel?.text = path[indexPath.item].info
+        let title: UILabel = (cell.contentView.viewWithTag(1) as? UILabel)!
+        let subtitle: UILabel = (cell.contentView.viewWithTag(2) as? UILabel)!
+        title.text = path[indexPath.item].name
+        subtitle.text = path[indexPath.item].info
+        
         return cell;
     }
     
