@@ -11,11 +11,14 @@ import UIKit
 import MapKit
 import CoreLocation
 
-class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate {
+class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, UISearchBarDelegate {
     
     @IBOutlet weak var locationButton: UIButton!
     @IBOutlet weak var saveButton: UIButton!
     @IBOutlet weak var map: MKMapView!
+    
+    @IBOutlet weak var searchBar: UISearchBar!
+    
     
     let locationManager = CLLocationManager()
     var currentUserLocation: CLLocation?
@@ -29,6 +32,13 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        //search Bar
+        searchController.searchResultsUpdater = self
+        searchController.dimsBackgroundDuringPresentation = false
+        definesPresentationContext = true
+//        tableView.tableHeaderView = searchController.searchBar
+        
         self.map.showsUserLocation = true
         locationButton.layer.cornerRadius = 0.5 * locationButton.bounds.size.width
         locationButton.layer.borderWidth = 0.8
@@ -38,7 +48,10 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         saveButton.layer.borderColor = UIColor.blackColor().CGColor
         clearMap()
         loadAnnotations()
+        
         //Will access the users location and update when there is a change (Will only work if the user agrees to use location settings
+
+
         self.map.delegate = self
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
