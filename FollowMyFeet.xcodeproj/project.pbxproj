@@ -26,6 +26,7 @@
 		E798331C1CF19CE500D9B95C /* PathTabController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E798331B1CF19CE500D9B95C /* PathTabController.swift */; };
 		E7E298071CE6C3FB00F82392 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E7E298061CE6C3FB00F82392 /* MapKit.framework */; };
 		E7E2980C1CE7616700F82392 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E7E2980B1CE7616700F82392 /* Main.storyboard */; };
+		E7F512BF1CF9795B0093F5B0 /* LoadingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F512BE1CF9795B0093F5B0 /* LoadingScreen.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +73,7 @@
 		E798331B1CF19CE500D9B95C /* PathTabController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PathTabController.swift; sourceTree = "<group>"; };
 		E7E298061CE6C3FB00F82392 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		E7E2980B1CE7616700F82392 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		E7F512BE1CF9795B0093F5B0 /* LoadingScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoadingScreen.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -136,6 +138,7 @@
 				31A9C1F31CDDDEC80099E4AE /* Assets.xcassets */,
 				E7E2980B1CE7616700F82392 /* Main.storyboard */,
 				31A9C1F51CDDDEC80099E4AE /* LaunchScreen.storyboard */,
+				E7F512BE1CF9795B0093F5B0 /* LoadingScreen.swift */,
 				31A9C1F81CDDDEC80099E4AE /* Info.plist */,
 				31A9C1F01CDDDEC80099E4AE /* FollowMyFeet.xcdatamodeld */,
 				E7166C5F1CE2252300D36276 /* Path+CoreDataProperties.swift */,
@@ -309,6 +312,7 @@
 				E75E2B591CF88F46007D56E7 /* SendPathController.swift in Sources */,
 				31A9C1EC1CDDDEC80099E4AE /* ViewController.swift in Sources */,
 				E7166C641CE2252300D36276 /* Path.swift in Sources */,
+				E7F512BF1CF9795B0093F5B0 /* LoadingScreen.swift in Sources */,
 				31A9C1EA1CDDDEC80099E4AE /* AppDelegate.swift in Sources */,
 				E7166C661CE2252300D36276 /* Location.swift in Sources */,
 				E75E2B571CF88CB4007D56E7 /* SendPathsManager.swift in Sources */,

@@ -69,7 +69,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         saveButton.layer.cornerRadius = 0.5 * saveButton.bounds.size.width
         saveButton.layer.borderWidth = 0.8
         saveButton.layer.borderColor = UIColor.blackColor().CGColor
-        print(locs.count)
         clearMap()
         loadAnnotations()
         self.map.delegate = self
@@ -156,7 +155,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
                 }
             }
             if saveLoc {
-                print("Im Here")
                 let temp = self.data.createLocation((currentPin?.coordinate)!, latDelta: 0.01, longDelta: 0.01, name: ((currentPin?.title)!)!, info: (currentPin?.subtitle!)!)
                 self.locs.append(temp)
             }
@@ -296,7 +294,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
                     request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[i].latitude!), longitude: Double(locs[i].longitude!)), addressDictionary: nil))
                     
                     request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[x].latitude!), longitude: Double(locs[x].longitude!)), addressDictionary: nil))
-                    request.transportType = .Walking
+                    request.transportType = .Any
                     let directions = MKDirections(request: request)
                     directions.calculateDirectionsWithCompletionHandler {
                         response, error in
