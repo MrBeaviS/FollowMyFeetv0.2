@@ -17,6 +17,8 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     @IBOutlet weak var saveButton: UIButton!
     @IBOutlet weak var map: MKMapView!
     @IBOutlet weak var searchBar: UISearchBar!
+    
+    //allows user to save a path to core data
     @IBAction func saveButtonAction(sender: UIButton!) {
         if locs.count > 2{
             var pathName: String?
@@ -70,10 +72,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         print(locs.count)
         clearMap()
         loadAnnotations()
-        
-        //Will access the users location and update when there is a change (Will only work if the user agrees to use location settings
-
-
         self.map.delegate = self
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
@@ -97,12 +95,14 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         pinCreate(newCoordinate)
     }
     
+    //function triggered when a search is completed
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
         self.clearMap()
         self.view.endEditing(true)
         searchInMap(searchBar.text!)
     }
     
+    //does a search request for pois
     func searchInMap(searchQuery: String) {
         let request = MKLocalSearchRequest()
         request.naturalLanguageQuery = searchQuery
@@ -253,6 +253,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         }
     }
     
+    //places the poi pins (could possibly reduce this and placeUserPins in to one but havent had time)
     func placePOIPins(data: MKMapItem){
         let annotation = MKPointAnnotation()
         let latitude: CLLocationDegrees = data.placemark.location!.coordinate.latitude
@@ -279,6 +280,8 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     }
     
     //gets the path for all the current clocations
+    //paths are limited by MapKit due to the number of requets can be made quickly the limit
+    //at the moment is 8 locations
     func getPathDirections() {
         var paths = Array<Array<MKRoute>>()
         let rows = locs.count
@@ -342,6 +345,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         return shortestPathArray
     }
     
+    //a function that when a path is being created determines which is the closest location from the user
     func getOptimalFromUserLoc(latitude: CLLocationDegrees, longitude: CLLocationDegrees){
         var path: MKRoute?
         for i in 0..<locs.count-1{
@@ -403,6 +407,8 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
     }
     
+//    due to how mapkit handles line drawing this function determines a bounding box that 
+//    includes all annotations then zooms to ensure they can all be seen
     func zoomToFitMapAnnotations() {
         let aMapView: MKMapView = self.map
         if aMapView.annotations.count == 0 {

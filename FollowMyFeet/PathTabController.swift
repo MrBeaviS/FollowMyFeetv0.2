@@ -27,7 +27,7 @@ class PathTabController: UIViewController, UITableViewDataSource, UITableViewDel
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
-        
+        if segue.identifier == "pathSegue" {
         let destinationVC = segue.destinationViewController as! ViewController
         let viewController = destinationVC
         viewController.providedPath = true
@@ -41,6 +41,7 @@ class PathTabController: UIViewController, UITableViewDataSource, UITableViewDel
         }
         viewController.locs.removeAll()
         viewController.locs = pathList
+        }
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
