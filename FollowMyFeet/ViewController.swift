@@ -129,6 +129,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     //creates a custom annotation view allowing the use of a button
     func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
         var view = mapView.dequeueReusableAnnotationViewWithIdentifier("AnnotationView Id")
+        
         if view == nil{
             view = MKPinAnnotationView(annotation: annotation, reuseIdentifier: "AnnotationView Id")
             view!.canShowCallout = true
@@ -138,8 +139,11 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
         view?.leftCalloutAccessoryView = nil
         view?.rightCalloutAccessoryView = UIButton(type: UIButtonType.ContactAdd)
-        
-        return view
+        if annotation is MKUserLocation {
+            return nil
+        }else {
+            return view
+        }
     }
     
     //the function that controlls the repsonviness of the button in each annoation view
@@ -281,6 +285,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     //paths are limited by MapKit due to the number of requets can be made quickly the limit
     //at the moment is 8 locations
     func getPathDirections() {
+        print(locs.count)
         var paths = Array<Array<MKRoute>>()
         let rows = locs.count
         let columns = rows
@@ -294,7 +299,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
                     request.source = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[i].latitude!), longitude: Double(locs[i].longitude!)), addressDictionary: nil))
                     
                     request.destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: Double(locs[x].latitude!), longitude: Double(locs[x].longitude!)), addressDictionary: nil))
-                    request.transportType = .Any
+                    request.transportType = .Walking
                     let directions = MKDirections(request: request)
                     directions.calculateDirectionsWithCompletionHandler {
                         response, error in
@@ -305,6 +310,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
                             self.shortestPathArray = self.determineOptimalPath(paths)
                             for path in self.shortestPathArray{
                                 self.drawPaths(path)
+                                
                             }
                             self.zoomToFitMapAnnotations()
                         }
