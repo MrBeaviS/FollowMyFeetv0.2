@@ -20,6 +20,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     //clears map of annotations
     @IBAction func pathButtonAction(sender: AnyObject) {
+        locs = []
         self.clearMap()
     }
     //allows user to save a path to core data

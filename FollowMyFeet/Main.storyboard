@@ -179,7 +179,7 @@
                                         <rect key="frame" x="0.0" y="92" width="600" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="haP-7H-ZKs" id="Etd-2K-iZ8">
-                                            <rect key="frame" x="0.0" y="0.0" width="600" height="43.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" tag="1" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3zW-Ue-z8q">
@@ -201,9 +201,6 @@
                                                         <constraint firstAttribute="height" constant="25" id="q93-xO-LaZ"/>
                                                     </constraints>
                                                     <state key="normal" image="Forward Message-25"/>
-                                                    <connections>
-                                                        <segue destination="qfK-qS-lmL" kind="show" id="bCg-P0-7b6"/>
-                                                    </connections>
                                                 </button>
                                             </subviews>
                                             <constraints>
@@ -249,24 +246,6 @@
             </objects>
             <point key="canvasLocation" x="4121" y="2387"/>
         </scene>
-        <!--Send Path Controller-->
-        <scene sceneID="uki-Lr-ZLR">
-            <objects>
-                <viewController id="qfK-qS-lmL" customClass="SendPathController" customModule="FollowMyFeet" customModuleProvider="target" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="u38-ZP-KyY"/>
-                        <viewControllerLayoutGuide type="bottom" id="u23-a6-Gbg"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="qrw-dg-f7H">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    </view>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="wJV-Ry-PeX" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="4921" y="2391"/>
-        </scene>
         <!--Locations-->
         <scene sceneID="bcK-lZ-2bk">
             <objects>
@@ -287,7 +266,7 @@
                                         <rect key="frame" x="0.0" y="122" width="600" height="44"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" tag="1" contentMode="center" tableViewCell="92p-sT-5f6" id="xxy-Gf-IWR">
-                                            <rect key="frame" x="0.0" y="0.0" width="600" height="43.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="600" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" tag="3" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Subtitle" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ory-3p-H5O">
@@ -566,6 +545,6 @@
         <image name="Save Filled-25" width="25" height="25"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="2Ht-Fy-53m"/>
+        <segue reference="9SR-cr-EM4"/>
     </inferredMetricsTieBreakers>
 </document>
