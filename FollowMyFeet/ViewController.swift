@@ -18,9 +18,14 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     @IBOutlet weak var map: MKMapView!
     @IBOutlet weak var searchBar: UISearchBar!
     
+    //clears map of annotations
+    @IBAction func pathButtonAction(sender: AnyObject) {
+        self.clearMap()
+    }
     //allows user to save a path to core data
     @IBAction func saveButtonAction(sender: UIButton!) {
-        if locs.count > 2{
+        //changed to > 1 to allow to point saves
+        if locs.count > 1{
             var pathName: String?
             var pathInfo: String?
             let addPathAlert = UIAlertController(title:  "Add a Path",message: "Path Details", preferredStyle: UIAlertControllerStyle.Alert)
@@ -40,7 +45,13 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
                 if let text = addPathAlert.textFields![1].text where !text.isEmpty {
                     pathInfo = text
                 }
-                self.data.createPath(pathName!, info: pathInfo!, loc: self.locs)
+                //sentinel to guard against user not entering pathInfo
+                if let pInfo = pathInfo{
+                    self.data.createPath(pathName!, info: pInfo, loc: self.locs)
+                } else {
+                    self.data.createPath(pathName!, info: "", loc: self.locs)
+                }
+                
             }
             addPathAlert.addAction(cancelButton)
             addPathAlert.addAction(createPathButton)
@@ -185,13 +196,12 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
         self.map.setRegion(region, animated: true)
         locationManager.stopUpdatingLocation()
-        //TO DO: fix the bug if only two locations selected.
         if locs.count != 0 {
             if providedLocation{
                 getDirections(latitude, longitude: longitude)
             }else if providedPath {
                 getOptimalFromUserLoc(latitude, longitude: longitude)
-                if locs.count > 2 {
+                if locs.count > 1 {
                     getPathDirections()
                 }else {
                     getDirections(locs[1].latitude as! CLLocationDegrees, longitude: locs[1].longitude as! CLLocationDegrees)
@@ -238,8 +248,15 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             annotation.title = annotationName
             annotation.subtitle = annotationInfo
             self.map.addAnnotation(annotation)
-            let temp = self.data.createLocation(newCoordinate, latDelta: 0.01, longDelta: 0.01, name: annotationName!, info: annotationInfo!)
-            self.locs.append(temp)
+            //sentinel to guard against users not putting location info
+            if let aInfo = annotationInfo {
+                let temp = self.data.createLocation(newCoordinate, latDelta: 0.01, longDelta: 0.01, name: annotationName!, info: aInfo)
+                self.locs.append(temp)
+            } else {
+                let temp = self.data.createLocation(newCoordinate, latDelta: 0.01, longDelta: 0.01, name: annotationName!, info: "")
+                self.locs.append(temp)
+            }
+            
         }
         addLocationAlert.addAction(cancelButton)
         addLocationAlert.addAction(createLocationButton)
