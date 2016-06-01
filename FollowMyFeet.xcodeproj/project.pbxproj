@@ -20,6 +20,7 @@
 		E7166C651CE2252300D36276 /* Location+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7166C611CE2252300D36276 /* Location+CoreDataProperties.swift */; };
 		E7166C661CE2252300D36276 /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7166C621CE2252300D36276 /* Location.swift */; };
 		E7166C681CE2253600D36276 /* dataAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7166C671CE2253600D36276 /* dataAccess.swift */; };
+		E718C3501CFD7374008D2819 /* SendDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = E718C34F1CFD7374008D2819 /* SendDataClass.swift */; };
 		E75E2B571CF88CB4007D56E7 /* SendPathsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E75E2B561CF88CB4007D56E7 /* SendPathsManager.swift */; };
 		E75E2B591CF88F46007D56E7 /* SendPathController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E75E2B581CF88F46007D56E7 /* SendPathController.swift */; };
 		E798331A1CF18D1100D9B95C /* LocationTabController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E79833191CF18D1100D9B95C /* LocationTabController.swift */; };
@@ -67,6 +68,7 @@
 		E7166C621CE2252300D36276 /* Location.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
 		E7166C671CE2253600D36276 /* dataAccess.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = dataAccess.swift; sourceTree = "<group>"; };
 		E7166C6B1CE2D19000D36276 /* FollowMyFeet 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "FollowMyFeet 2.xcdatamodel"; sourceTree = "<group>"; };
+		E718C34F1CFD7374008D2819 /* SendDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendDataClass.swift; sourceTree = "<group>"; };
 		E75E2B561CF88CB4007D56E7 /* SendPathsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendPathsManager.swift; sourceTree = "<group>"; };
 		E75E2B581CF88F46007D56E7 /* SendPathController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendPathController.swift; sourceTree = "<group>"; };
 		E79833191CF18D1100D9B95C /* LocationTabController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationTabController.swift; sourceTree = "<group>"; };
@@ -135,6 +137,7 @@
 				E798331B1CF19CE500D9B95C /* PathTabController.swift */,
 				E75E2B561CF88CB4007D56E7 /* SendPathsManager.swift */,
 				E75E2B581CF88F46007D56E7 /* SendPathController.swift */,
+				E718C34F1CFD7374008D2819 /* SendDataClass.swift */,
 				31A9C1F31CDDDEC80099E4AE /* Assets.xcassets */,
 				E7E2980B1CE7616700F82392 /* Main.storyboard */,
 				31A9C1F51CDDDEC80099E4AE /* LaunchScreen.storyboard */,
@@ -318,6 +321,7 @@
 				E75E2B571CF88CB4007D56E7 /* SendPathsManager.swift in Sources */,
 				E798331A1CF18D1100D9B95C /* LocationTabController.swift in Sources */,
 				E798331C1CF19CE500D9B95C /* PathTabController.swift in Sources */,
+				E718C3501CFD7374008D2819 /* SendDataClass.swift in Sources */,
 				E7166C681CE2253600D36276 /* dataAccess.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -26,6 +26,11 @@ class PathTabController: UIViewController, UITableViewDataSource, UITableViewDel
         path = data.getAllPaths()
     }
     
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        pathTable.reloadData()
+    }
+    
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject!) {
         if segue.identifier == "pathSegue" {
         let destinationVC = segue.destinationViewController as! ViewController
@@ -41,6 +46,11 @@ class PathTabController: UIViewController, UITableViewDataSource, UITableViewDel
         }
         viewController.locs.removeAll()
         viewController.locs = pathList
+        }else if segue.identifier == "send"{
+            let destinationVC = segue.destinationViewController as! SendPathController
+            let viewController = destinationVC
+            //let rows = self.pathTable.indexPathsForSelectedRows?.map{$0.row}
+            viewController.pathData = path![0]
         }
     }
     

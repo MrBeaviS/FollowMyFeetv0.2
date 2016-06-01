@@ -8,132 +8,105 @@
 
 import Foundation
 import MultipeerConnectivity
-
-protocol SendPathManagerDelegate {
-    
-    func connectedDevicesChanged(manager : SendPathManager, connectedDevices: [String])
+import MapKit
+protocol SPManagerDelegate {
     func foundPeer()
-    func pathChanged(manager : SendPathManager, colorString: String)
     
+    func lostPeer()
+    
+    func invitationWasReceived(fromPeer: String)
+    
+    func connectedWithPeer(peerID: MCPeerID)
+    
+    func dataRecived(notification: NSNotification)
 }
 
-class SendPathManager: NSObject{
-    private let pathServiceType = "Path"
+class SendPathManager: NSObject, MCSessionDelegate, MCNearbyServiceBrowserDelegate, MCNearbyServiceAdvertiserDelegate{
+    var path: Path?
+    var session: MCSession!
+    var peer: MCPeerID!
+    var browser: MCNearbyServiceBrowser!
+    var advertiser: MCNearbyServiceAdvertiser!
     var foundPeers = [MCPeerID]()
-    private let myPeerId = MCPeerID(displayName: UIDevice.currentDevice().name)
-    private let serviceAdvertiser: MCNearbyServiceAdvertiser
-    private let serviceBrowser : MCNearbyServiceBrowser
-    var delegate : SendPathManagerDelegate?
+    var invitationHandler: ((Bool, MCSession)->Void)!
+    var delegate: SPManagerDelegate?
+    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+    var data: dataAccess = dataAccess.sharedInstance
     
     override init() {
-        print("TEST MULTIPEER")
-        self.serviceAdvertiser = MCNearbyServiceAdvertiser(peer: myPeerId, discoveryInfo: nil, serviceType: pathServiceType)
-        self.serviceBrowser = MCNearbyServiceBrowser(peer: myPeerId, serviceType: pathServiceType)
         super.init()
-        self.serviceAdvertiser.delegate = self
-        self.serviceAdvertiser.startAdvertisingPeer()
-        self.serviceBrowser.delegate = self
-        self.serviceBrowser.startBrowsingForPeers()
-    }
-    
-    deinit {
-        self.serviceAdvertiser.stopAdvertisingPeer()
-        self.serviceBrowser.stopBrowsingForPeers()
-    }
-    
-    func sendPath(path : Path) {
-        NSLog("%@", "sendColor: \(path)")
-        let pathData = NSKeyedArchiver.archivedDataWithRootObject(path)
-        NSUserDefaults().setObject(pathData, forKey: "path")
-        if session.connectedPeers.count > 0 {
-            do {
-                try self.session.sendData(pathData, toPeers: self.session.connectedPeers, withMode: MCSessionSendDataMode.Unreliable)
-            } catch let error as NSError {
-                print(error)
-            }
-        }
         
-    }
-    
-    lazy var session : MCSession = {
-        let session = MCSession(peer: self.myPeerId, securityIdentity: nil, encryptionPreference: MCEncryptionPreference.Required)
+        peer = MCPeerID(displayName: UIDevice.currentDevice().name)
+        session = MCSession(peer: peer)
         session.delegate = self
-        return session
-    }()
-}
-
-
-extension MCSessionState {
-    
-    func stringValue() -> String {
-        switch(self) {
-        case .NotConnected: return "NotConnected"
-        case .Connecting: return "Connecting"
-        case .Connected: return "Connected"
-        }
+        browser = MCNearbyServiceBrowser(peer: peer, serviceType: "appcoda-mpc")
+        browser.delegate = self
+        advertiser = MCNearbyServiceAdvertiser(peer: peer, discoveryInfo: nil, serviceType: "appcoda-mpc")
+        advertiser.delegate = self
     }
-    
-}
-
-
-extension SendPathManager: MCNearbyServiceAdvertiserDelegate {
     
     func advertiser(advertiser: MCNearbyServiceAdvertiser, didNotStartAdvertisingPeer error: NSError) {
-        print("didNotStartAdvertisingPeer: \(error)")
+//        NSLog("%@", "didNotStartAdvertisingPeer: \(error)")
     }
     
     func advertiser(advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: NSData?, invitationHandler: (Bool, MCSession) -> Void) {
-        print("didReceiveInvitationFromPeer \(peerID)")
-        invitationHandler(true, self.session)
-    }
-}
-
-extension SendPathManager : MCNearbyServiceBrowserDelegate {
-    func browser(browser: MCNearbyServiceBrowser, didNotStartBrowsingForPeers error: NSError) {
-        print("%@", "didNotStartBrowsingForPeers: \(error)")
+        self.invitationHandler = invitationHandler
+        delegate?.invitationWasReceived(peerID.displayName)
     }
     
+    func browser(browser: MCNearbyServiceBrowser, didNotStartBrowsingForPeers error: NSError) {
+//        NSLog("%@", "didNotStartBrowsingForPeers: \(error)")
+    }
+    
+    func browser(browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
+        foundPeers.append(peerID)
+        delegate?.foundPeer()
+    }
     
     func browser(browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
-        /*for (index, aPeer) in foundPeers{
+        for (index, aPeer) in foundPeers.enumerate(){
             if aPeer == peerID {
                 foundPeers.removeAtIndex(index)
                 break
             }
-        }*/
-        print("%@", "lostPeer: \(peerID)")
+        }
+        
+        delegate?.lostPeer()
     }
     
-    func browser(browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
-        print("foundPeer: \(peerID)")
-        print("invitePeer: \(peerID)")
-        foundPeers.append(peerID)
-        
-        delegate?.foundPeer()
-        //browser.invitePeer(peerID, toSession: self.session, withContext: nil, timeout: 10)
-    }
-}
-
-extension SendPathManager : MCSessionDelegate {
     
     func session(session: MCSession, peer peerID: MCPeerID, didChangeState state: MCSessionState) {
-        print("%@", "peer \(peerID) didChangeState: \(state.stringValue())")
-        self.delegate?.connectedDevicesChanged(self, connectedDevices: session.connectedPeers.map({$0.displayName}))
-
+        switch state{
+        case MCSessionState.Connected:
+            print("Connected to session: \(session)")
+            delegate?.connectedWithPeer(peerID)
+            
+        case MCSessionState.Connecting:
+            print("Connecting to session:")
+            
+        default:
+            print("Did not connect to session:")
+        }
     }
     
     func session(session: MCSession, didReceiveData data: NSData, fromPeer peerID: MCPeerID) {
         print("%@", "didReceiveData: \(data)")
-        if let loadedData = NSUserDefaults().dataForKey("path") {
-            
-            if let loadedPath = NSKeyedUnarchiver.unarchiveObjectWithData(loadedData) as? Path {
-                print("to send a path \(loadedPath)")
-            }
+        let dataList: [SendDataClass] = (NSKeyedUnarchiver.unarchiveObjectWithData(data)! as? [SendDataClass])!
+        var pathList: [Location] = []
+        for aresponse in dataList{
+            print(dataList.count)
+            let newCoordinate : CLLocationCoordinate2D = CLLocationCoordinate2DMake(aresponse.latitude as!  CLLocationDegrees, aresponse.longitude as! CLLocationDegrees)
+            let tempLoc = self.data.createLocation(newCoordinate, latDelta: aresponse.latDelta as! CLLocationDegrees, longDelta: aresponse.longDelta as! CLLocationDegrees, name: aresponse.name!, info: aresponse.info!)
+            pathList.append(tempLoc)
+            print(pathList.count)
         }
+        self.data.createPath("Recived", info: "Recived", loc: pathList)
+        
+//        NSNotificationCenter.defaultCenter().postNotificationName("receivedPDataNotification", object: data)
     }
     
     func session(session: MCSession, didReceiveStream stream: NSInputStream, withName streamName: String, fromPeer peerID: MCPeerID) {
-        print("%@", "didReceiveStream")
+        NSLog("%@", "didReceiveStream")
     }
     
     func session(session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, atURL localURL: NSURL, withError error: NSError?) {
@@ -143,5 +116,26 @@ extension SendPathManager : MCSessionDelegate {
     func session(session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, withProgress progress: NSProgress) {
         print("%@", "didStartReceivingResourceWithName")
     }
+    //TODO work out how to store and then send the needed data
+    func sendPath(pathName : Path, index: Int) {
+        var data: SendDataClass?
+        var dataList: [SendDataClass] = []
+        for aresponse in pathName.location!{
+            data = SendDataClass(location: aresponse as! Location)
+//            print(data?.name)
+            dataList.append(data!)
+//            print(dataList.count)
+        }
+        
+        let dataToSend : NSData = NSKeyedArchiver.archivedDataWithRootObject(dataList)
+        do {
+//            print("%@", "sendingData: \(dataToSend)")
+            try appDelegate.pathService.session.sendData(dataToSend, toPeers: appDelegate.pathService.foundPeers, withMode: MCSessionSendDataMode.Reliable)
+        } catch let error as NSError {
+            print(error.localizedDescription)
+            
+        }
+    }
     
 }
+

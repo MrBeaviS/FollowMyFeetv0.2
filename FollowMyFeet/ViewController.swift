@@ -11,13 +11,13 @@ import UIKit
 import MapKit
 import CoreLocation
 
-class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, UISearchBarDelegate {
+class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, UISearchBarDelegate{
     
+    @IBOutlet var map: MKMapView!
     @IBOutlet weak var locationButton: UIButton!
     @IBOutlet weak var saveButton: UIButton!
-    @IBOutlet weak var map: MKMapView!
     @IBOutlet weak var searchBar: UISearchBar!
-    
+    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     //clears map of annotations
     @IBAction func pathButtonAction(sender: AnyObject) {
         locs = []
@@ -73,6 +73,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        appDelegate.pathService.advertiser.startAdvertisingPeer()
         searchBar.delegate = self
         self.map.showsUserLocation = true
         locationButton.layer.cornerRadius = 0.5 * locationButton.bounds.size.width
