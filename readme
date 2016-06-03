@@ -1,0 +1,40 @@
+Michael Beavis 3597131 Project Leader
+Nicholas Judd 4362858 Lead Developer
+
+Presentation Slides Link
+http://prezi.com/anzsb6eiyzi7/?utm_campaign=share&utm_medium=copy&rc=ex0share
+
+Multiple Simulators Link
+https://darksquaregames.com/how-to-run-multiple-ios-simulators-simultaneously/
+
+
+Follow My Footsteps Readme
+
+Custom Annotation
+
+- To drop an annotation on the map a long press of 1 second is required
+- A prompt will appear for you to enter Location Name and Information
+- Press Create Location to save to Core Data
+
+Search
+
+- Selecting the search bar you can enter POIs names to search nearby
+
+Create Path
+
+- Press small map icon to open stored locations and paths
+- Selecting 1 location and pressing view location will switch back to map and show location
+- Selecting 2 or more allows for the creation of a path and will switch back to the map
+
+Save Path
+
+- Press the save icon
+- A prompt appears for the user to add a path name and details
+- Pressing Create Path will save the path to Core Data
+
+Send Path
+
+- Press the map Icon and navigate to the saved Paths location using the tab bar at the bottom
+- Press the send icon which will search for nearby phones with the app installed
+- Select the device you wish to send to
+- The recieving phone MUST accept the exchange
