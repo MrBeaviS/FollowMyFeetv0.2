@@ -28,6 +28,7 @@ class PathTabController: UIViewController, UITableViewDataSource, UITableViewDel
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
+        path = data.getAllPaths()
         pathTable.reloadData()
     }
     
